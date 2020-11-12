@@ -1,0 +1,134 @@
+---
+title: "IDDS 2201 Data Analytics Flyer"
+author: "Vincent Cannataro, Ph.D. (cannatarov@emmanuel.edu)"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gapminder)
+library(tidyverse)
+library(gganimate)
+library(plotly)
+```
+
+
+# What is Data Analytics? 
+
+We are completely inundated with data. If you look through your browser tabs right now (November 2020) you may see COVID case counts, voting trends, your FitBit data, music play data, Tweets, and maybe even raw data you generated for a research project. Have you ever wanted to take control of this data? Well, then *Data Analytics* is the class for you!  
+
+*Data Analytics* is a new course! All majors are welcome. 
+
+## What will we learn?
+
+In *Data Analytics* we will learn how to:
+
+* obtain raw structured and unstructured data from various sources
+* clean, transform, merge, explore, and analyze data sets
+* interpret and effectively communicate data summaries and stories 
+* share data and communications using modern tools (such as this HTML webpage)
+* *and much more!*
+
+all while becoming proficient in the [R](https://www.r-project.org/) programming language. 
+
+## What does that look like?
+
+
+We will learn to take raw data:
+```{r print data, echo=FALSE,message=F,warning=F}
+# just read some lines and output to HTML page
+readLines(con = "raw_life_expectancy_years.csv",n = 2)
+```
+
+
+and `tidy` the data to turn it into something humans can interpret:
+
+$~$
+
+$~$
+
+$~$
+
+```{r, echo=F}
+# output the full data
+DT::datatable(gapminder, caption = "Data from https://www.gapminder.org/")
+```
+
+$~$
+
+$~$
+
+$~$
+
+and something humans can understand (**this plot is interactive!** click around for more data):
+
+```{r, echo=F, warning=F}
+# filter gapminder data for latest year
+gap_for_plot <- gapminder %>% filter(year == 2007)
+
+# make a ggplot of the data
+gapminder_ggplot <- ggplot(gap_for_plot,aes(x=gdpPercap, y=lifeExp, size = pop, color=country)) + 
+  geom_point(alpha = 0.7, show.legend = F) +
+  scale_colour_manual(values = country_colors) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  facet_wrap(~continent) + 
+  labs(title = 'Life expectancy in the year 2007 in 142 countries', x = 'GDP per capita', y = 'Life expectancy') + 
+  theme_bw()
+  
+# render the ggplot in plotly
+gapminder_plotly <- plotly::ggplotly(gapminder_ggplot)
+
+# remove the legend 
+gapminder_plotly %>% layout(showlegend=F)
+```
+
+
+
+
+
+
+# Requisites
+
+Requisites are listed as 
+`"Complete MATH 1118 or (MATH 1117 and MATH 0118) - Must be completed prior to taking this course."`
+
+However, since the R component of these courses are relatively new, students can request a waiver this year if they took stats without R and complete an online R tutorial course before the Spring semester.  
+
+# Will this cost me extra money? 
+
+As this will be a virtual class in Spring 2021, students need access to a computer. We will be using the **free** open source [statistical computing software](https://www.r-project.org/), and the **free** open source [R for Data Science](https://r4ds.had.co.nz/) textbook, along with other free resources.
+
+# Contact
+
+Email Dr. Vincent Cannataro [cannatarov@emmanuel.edu](mailto:cannatarov@emmanuel.edu) with any questions. 
+
+# Bonus
+
+We can learn how to take our data into the fourth dimension,  too: 
+
+```{r, echo=F}
+
+
+# https://www.youtube.com/watch?v=Z8t4k0Q8e8Y&feature=emb_title
+
+#made with gganimate! 
+ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, size = pop, color = country)) +
+  geom_point(alpha = 0.7, show.legend = F) +
+  scale_colour_manual(values = country_colors) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10(breaks=c(1e3,1e4,1e5),labels=expression(10^3,10^4,10^5)) +
+  facet_wrap(~continent) + 
+  theme_bw() + 
+  # Here comes the gganimate specific bits
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'Life expectancy') +
+  transition_time(year) +
+  ease_aes('linear')
+
+```
+
+
