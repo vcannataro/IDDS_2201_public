@@ -124,7 +124,7 @@ ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, size = pop, color = country)) +
   facet_wrap(~continent) + 
   theme_bw() + 
   # Here comes the gganimate specific bits
-  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'Life expectancy') +
+  labs(title = 'Life expectancy in the year {frame_time} in 142 countries', x = 'GDP per capita', y = 'Life expectancy') +
   transition_time(year) +
   ease_aes('linear')
 
