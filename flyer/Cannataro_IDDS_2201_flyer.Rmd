@@ -1,7 +1,7 @@
 ---
 title: "IDDS 2201 Data Analytics Flyer"
 author: "Vincent Cannataro, Ph.D. (cannatarov@emmanuel.edu)"
-date: "`r format(Sys.time(), '%B %d, %Y')`"
+date: "Offered Spring 2021"
 output:
   html_document:
     toc: true
@@ -64,7 +64,9 @@ $~$
 
 $~$
 
-and something humans can understand (**this plot is interactive!** click around for more data):
+and something humans can understand (**this plot is interactive!** click around for more data) in a few lines of code [^1]:
+
+[^1]: The code to build this document and the analyses therein can be found here:  https://github.com/vcannataro/IDDS_2201_public/blob/master/flyer/Cannataro_IDDS_2201_flyer.Rmd
 
 ```{r, echo=F, warning=F}
 # filter gapminder data for latest year
@@ -107,9 +109,6 @@ As this will be a virtual class in Spring 2021, students need access to a comput
 
 Email Dr. Vincent Cannataro [cannatarov@emmanuel.edu](mailto:cannatarov@emmanuel.edu) with any questions. 
 
-# Bonus
-
-We can learn how to take our data into the fourth dimension,  too: 
 
 ```{r, echo=F}
 
