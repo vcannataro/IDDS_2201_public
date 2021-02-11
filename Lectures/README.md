@@ -3,7 +3,9 @@ Lecture notes for the IDDS 2201 course.
 
 - [Lecture 2, meet the toolkit](https://vcannataro.github.io/IDDS_2201_public/Lectures/L2_meet_the_toolkit/L2_meet_the_toolkit.html#1)
 - [Lecture 3.1, Data visualization](https://vcannataro.github.io/IDDS_2201_public/Lectures/L3_data_visualization/L3_data_visualization.html#1)
-- [Lecture 2, meet the toolkit](https://vcannataro.github.io/IDDS_2201_public/Lectures/L3_data_visualization/L3_data_visualization_p2.html#1)
+- [Lecture 3.2, Data viz part 2](https://vcannataro.github.io/IDDS_2201_public/Lectures/L3_data_visualization/L3_data_visualization_p2.html#1)
+
+
 
 
 

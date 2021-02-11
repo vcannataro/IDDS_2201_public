@@ -535,18 +535,33 @@ ggplot(loans, aes(x = homeownership, fill = grade)) +
 Which bar plot is a more useful representation for visualizing the relationship between homeownership and grade?
 ]
 
-.pull-left[
-```{r echo=FALSE, out.width = "100%"}
-ggplot(loans, aes(x = homeownership, fill = grade)) +
-  geom_bar()
+
+```{r echo=FALSE, out.width = "70%", out.height="30%"}
+library(patchwork)
+
+p1 <- ggplot(loans, aes(x = homeownership, fill = grade)) +
+  geom_bar() + 
+  guides(fill = FALSE) + 
+  theme(axis.text.x = element_text(angle=45,hjust=1)) + 
+  ggtitle("A")
+
+p2 <- ggplot(loans, aes(x = homeownership, 
+                  fill = grade)) + 
+  geom_bar(position = "dodge") + 
+  guides(fill = FALSE) + 
+  theme(axis.title.y = element_blank())  + 
+  theme(axis.text.x = element_text(angle=45,hjust=1)) + 
+  ggtitle("B")
+
+p3 <- ggplot(loans, aes(x = homeownership, fill = grade)) +
+  geom_bar(position = "fill") + 
+  theme(axis.title.y = element_blank())  + 
+  theme(axis.text.x = element_text(angle=45,hjust=1)) + 
+  ggtitle("C")
+
+p1 + p2 + p3
 ```
-]
-.pull-right[
-```{r echo=FALSE, out.width = "100%"}
-ggplot(loans, aes(x = homeownership, fill = grade)) +
-  geom_bar(position = "fill")
-```
-]
+
 
 ---
 
@@ -597,6 +612,21 @@ ggplot(loans, aes(x = homeownership, y = loan_amount)) +
 
 ---
 
+## Violin plots... *with data*
+
+```{r warning = FALSE}
+ggplot(loans, aes(x = homeownership, y = loan_amount)) +
+  geom_violin() + 
+  geom_jitter(alpha=0.15,height = 0.2,width = 0.2) + #<<
+  theme_bw() #<<
+```
+
+
+
+---
+
+
+
 ## Ridge plots
 
 ```{r warning = FALSE}
@@ -606,6 +636,66 @@ ggplot(loans, aes(x = loan_amount, y = grade, fill = grade, color = grade)) +
 ```
 
 ---
+
+class: middle
+
+# Viewing, storing, and saving plots
+
+
+---
+
+## Viewing immediately
+
+Printing my plot within the RMarkdown document or to the console:
+
+```{r, warning=FALSE}
+# call ggplot() without storing it into a data structure
+ggplot(loans, aes(x = homeownership, y = loan_amount)) +
+  geom_violin()
+```
+
+---
+
+## Saving my plot to a data structure, then viewing
+
+First we create the plot, but we store it without viewing
+```{r}
+# call ggplot() without storing it into a data structure
+my_plot <- ggplot(loans, aes(x = homeownership, y = loan_amount)) +
+  geom_violin()
+```
+
+--
+
+Then we can view the plot
+```{r, out.width="40%"}
+my_plot
+```
+
+
+---
+
+Or even add more to the plot
+
+```{r}
+my_plot + 
+  labs(y= "Loan amount" ) + 
+  theme_classic()
+```
+
+---
+
+## Saving a plot
+
+Once a plot is stored in memory (in a data structure), we can save it!
+
+```{r, message=T}
+ggsave(filename = "figures/my_plot.png",plot = my_plot, height = 5,width = 5)
+```
+
+
+---
+
 
 # Attributions
 
