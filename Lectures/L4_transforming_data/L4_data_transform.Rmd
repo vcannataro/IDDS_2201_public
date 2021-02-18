@@ -1,5 +1,5 @@
 ---
-title: "Tidy data"
+title: "Transforming data"
 subtitle: "<br><br> IDDS 2201: Data Analytics"
 author: "Vincent L. Cannataro, Ph.D."
 output:
