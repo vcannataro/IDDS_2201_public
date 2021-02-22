@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Some handy R tips</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Vincent L. Cannataro, Ph.D." />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/font-awesome/css/all.css" rel="stylesheet" />
+    <link href="libs/font-awesome/css/v4-shims.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <link rel="stylesheet" href="../xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Some handy R tips
+## <br><br> IDDS 2201: Data Analytics
+### Vincent L. Cannataro, Ph.D.
+
+---
+
+
+
+
+
+layout: true
+  
+&lt;!-- &lt;div class="my-footer"&gt; --&gt;
+&lt;!-- &lt;span&gt; --&gt;
+&lt;!-- &lt;a href="https://introds.org" target="_blank"&gt;introds.org&lt;/a&gt; --&gt;
+&lt;!-- &lt;/span&gt; --&gt;
+&lt;!-- &lt;/div&gt;  --&gt;
+
+---
+
+# The R environment and R objects 
+
+When you `assign` an object to a data structure in R, you store the object in the R environment.
+
+
+```r
+my_object &lt;- 3
+```
+
+--
+
+We can check what the object looks like by typing it into the console and pressing enter...
+
+
+```r
+my_object
+```
+
+```
+## [1] 3
+```
+
+--
+
+... or by inspecting the object in the environment tab in RStudio
+
+&lt;img src="img/RStudio_env.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+We can manipulate objects and use them in computation, but those analyses are 
+stored for subsequent use **only if** they are assigned to an object themselves. More info [here](https://r4ds.had.co.nz/workflow-basics.html).
+
+--
+
+
+```r
+my_object * 2
+```
+
+```
+## [1] 6
+```
+
+
+```r
+my_object
+```
+
+```
+## [1] 3
+```
+
+--
+
+
+```r
+my_new_object &lt;- my_object * 2 
+```
+
+
+```r
+my_object
+```
+
+```
+## [1] 3
+```
+
+```r
+my_new_object
+```
+
+```
+## [1] 6
+```
+
+---
+
+# Dimensions of objects
+
+## One value
+
+
+```r
+my_object
+```
+
+```
+## [1] 3
+```
+
+--
+
+## Multiple values in a vector
+
+```r
+my_vector &lt;- c("One","Two","Pineapple","Squirrel")
+my_vector
+```
+
+```
+## [1] "One"       "Two"       "Pineapple" "Squirrel"
+```
+
+---
+
+# Dimensions of objects
+
+## Multiple variables in a data frame
+
+.pull-left[
+
+```r
+my_data_frame &lt;- 
+  data.frame(var1 = my_vector, 
+             var2 = c(1,2,8,17))
+my_data_frame
+```
+
+```
+##        var1 var2
+## 1       One    1
+## 2       Two    2
+## 3 Pineapple    8
+## 4  Squirrel   17
+```
+]
+
+.pull-right[
+
+```r
+library(tidyverse)
+my_data_frame &lt;- 
+  tibble(var1 = my_vector, 
+         var2 = c(1,2,8,17))
+my_data_frame
+```
+
+```
+## # A tibble: 4 x 2
+##   var1       var2
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 One           1
+## 2 Two           2
+## 3 Pineapple     8
+## 4 Squirrel     17
+```
+]
+
+
+---
+
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `[ , ]` on an object with one value
+
+
+```r
+my_object[1] # pull out the first value in this object
+```
+
+```
+## [1] 3
+```
+
+
+```r
+my_object[2] # pull out the second value in this object
+```
+
+```
+## [1] NA
+```
+
+---
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `[ , ]` on an object with many values
+
+
+```r
+my_vector[1] # pull out the first value in this object
+```
+
+```
+## [1] "One"
+```
+
+
+```r
+my_vector[3] # pull out the third value in this object
+```
+
+```
+## [1] "Pineapple"
+```
+
+
+```r
+my_vector[10] # pull out the tenth value in this object
+```
+
+```
+## [1] NA
+```
+
+
+---
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `[ , ]` on a dataframe
+
+.pull-left[
+
+```r
+my_data_frame[1,] 
+```
+
+```
+## # A tibble: 1 x 2
+##   var1   var2
+##   &lt;chr&gt; &lt;dbl&gt;
+## 1 One       1
+```
+]
+
+.pull-right[
+
+```r
+my_data_frame[,2]
+```
+
+```
+## # A tibble: 4 x 1
+##    var2
+##   &lt;dbl&gt;
+## 1     1
+## 2     2
+## 3     8
+## 4    17
+```
+]
+
+.question[What is happening here?]
+ 
+---
+
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `[ , ]` on a dataframe
+
+For 2-dimensional objects, `[,]` operates as `[row,column]`
+
+
+```r
+my_data_frame[4,1] 
+```
+
+```
+## # A tibble: 1 x 1
+##   var1    
+##   &lt;chr&gt;   
+## 1 Squirrel
+```
+--
+.question[Subsetting tibbles returns tibbles. What if we wanted to grab that single value 
+as a single character object, not a tibble object?]
+
+---
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `[ , ]` on a dataframe
+ For 2-dimensional objects, `[,]` operates as `[row,column]`
+
+
+```r
+my_new_object &lt;- my_data_frame[4,1] 
+my_new_object
+```
+
+```
+## # A tibble: 1 x 1
+##   var1    
+##   &lt;chr&gt;   
+## 1 Squirrel
+```
+
+```r
+my_new_object$var1
+```
+
+```
+## [1] "Squirrel"
+```
+
+---
+
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `$` on a `named` object. 
+
+`$` pulls out the named variable. 
+--
+
+.pull-left-narrow[
+
+
+```r
+my_data_frame[1:2,]
+```
+
+```
+## # A tibble: 2 x 2
+##   var1   var2
+##   &lt;chr&gt; &lt;dbl&gt;
+## 1 One       1
+## 2 Two       2
+```
+
+```r
+names(my_data_frame)
+```
+
+```
+## [1] "var1" "var2"
+```
+
+]
+
+--
+
+.pull-right-wide[
+
+```r
+my_data_frame$var1
+```
+
+```
+## [1] "One"       "Two"       "Pineapple" "Squirrel"
+```
+]
+
+---
+
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## `tidyverse` style: `pull()`
+
+
+
+```r
+my_data_frame %&gt;% 
+  pull(var1)
+```
+
+```
+## [1] "One"       "Two"       "Pineapple" "Squirrel"
+```
+
+---
+
+# Extracting data using logical operators
+
+
+operator    | definition                   || operator     | definition
+------------|------------------------------||--------------|----------------
+`&lt;`         | less than                    ||`x`&amp;nbsp;&amp;#124;&amp;nbsp;`y`     | `x` OR `y` 
+`&lt;=`        |	less than or equal to        ||`is.na(x)`    | test if `x` is `NA`
+`&gt;`         | greater than                 ||`!is.na(x)`   | test if `x` is not `NA`
+`&gt;=`        |	greater than or equal to     ||`x %in% y`    | test if `x` is in `y`
+`==`        |	exactly equal to             ||`!(x %in% y)` | test if `x` is not in `y`
+`!=`        |	not equal to                 ||`!x`          | not `x`
+`x &amp; y`     | `x` AND `y`                  ||              |
+
+---
+
+# Extracting data using logical operators
+
+
+```r
+my_sequence &lt;- 1:20
+my_sequence
+```
+
+```
+##  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+```
+
+
+
+```r
+evens
+```
+
+```
+##  [1]  2  4  6  8 10 12 14 16 18 20
+```
+
+--
+
+
+
+```r
+evens %in% my_sequence
+```
+
+```
+##  [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+```
+
+--
+
+
+
+```r
+my_sequence %in% evens
+```
+
+```
+##  [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+## [11] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+```
+
+---
+
+#Extracting data using logical operators
+
+`R` extracts the `TRUE` values from the vector
+
+
+
+
+```r
+my_sequence %in% evens
+```
+
+```
+##  [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+## [11] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+```
+
+
+
+```r
+my_sequence[my_sequence %in% evens]
+```
+
+```
+##  [1]  2  4  6  8 10 12 14 16 18 20
+```
+
+
+---
+
+#Extracting data using logical operators
+
+`R` extracts the `TRUE` values from the vector
+
+
+```r
+my_sequence %in% 3:8
+```
+
+```
+##  [1] FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE
+## [11] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+```
+
+
+
+```r
+my_sequence[my_sequence %in% 3:8]
+```
+
+```
+## [1] 3 4 5 6 7 8
+```
+
+---
+
+#Extracting data using logical operators
+
+`R` extracts the `TRUE` values from the vector
+
+
+
+
+```r
+my_sequence &lt; 10
+```
+
+```
+##  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE
+## [11] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+```
+
+
+
+```r
+my_sequence[my_sequence &lt; 10]
+```
+
+```
+## [1] 1 2 3 4 5 6 7 8 9
+```
+
+
+---
+
+
+# Pulling data out of objects
+
+
+.question[What am I doing here?]
+
+.pull-left[
+
+```r
+my_data_frame
+```
+
+```
+## # A tibble: 4 x 2
+##   var1       var2
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 One           1
+## 2 Two           2
+## 3 Pineapple     8
+## 4 Squirrel     17
+```
+]
+
+.pull-right[
+
+
+```r
+my_var1 &lt;- my_data_frame %&gt;% 
+  arrange(desc(var2)) %&gt;%
+  pull(var1)
+
+my_data_frame %&gt;%
+  filter(var1 %in% my_var1[1:3]) 
+```
+
+```
+## # A tibble: 3 x 2
+##   var1       var2
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 Two           2
+## 2 Pineapple     8
+## 3 Squirrel     17
+```
+]
+
+---
+
+.pull-left[
+
+```r
+my_var1 &lt;- my_data_frame %&gt;% 
+  arrange(desc(var2)) 
+my_var1
+```
+
+```
+## # A tibble: 4 x 2
+##   var1       var2
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 Squirrel     17
+## 2 Pineapple     8
+## 3 Two           2
+## 4 One           1
+```
+
+```r
+my_var1 &lt;- my_var1 %&gt;% pull(var1)
+my_var1
+```
+
+```
+## [1] "Squirrel"  "Pineapple" "Two"       "One"
+```
+]
+
+
+--
+
+
+.pull-right[
+
+
+```r
+my_data_frame %&gt;%
+  filter(var1 %in% my_var1[1:3]) 
+```
+
+```
+## # A tibble: 3 x 2
+##   var1       var2
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 Two           2
+## 2 Pineapple     8
+## 3 Squirrel     17
+```
+]
+
+
+---
+
+# P.S. 
+
+
+- FAQ page on [ECLearn](https://eclearn.emmanuel.edu/courses/3147960/pages/r-and-git-faqs)
+
+&lt;img src="img/ECLearn_FAQ.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightLines": true,
+"highlightStyle": "solarized-light",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,402 @@
+---
+title: "Some handy R tips"
+subtitle: "<br><br> IDDS 2201: Data Analytics"
+author: "Vincent L. Cannataro, Ph.D."
+output:
+  xaringan::moon_reader:
+    css: ["../xaringan-themer.css", "../slides.css"]
+    lib_dir: libs
+    nature:
+      ratio: "16:9"
+      highlightLines: true
+      highlightStyle: solarized-light
+      countIncrementalSlides: false
+---
+
+```{r child = "../setup.Rmd"}
+```
+
+# The R environment and R objects 
+
+When you `assign` an object to a data structure in R, you store the object in the R environment.
+
+```{r}
+my_object <- 3
+```
+
+--
+
+We can check what the object looks like by typing it into the console and pressing enter...
+
+```{r}
+my_object
+```
+
+--
+
+... or by inspecting the object in the environment tab in RStudio
+
+```{r, echo=F,out.width="40%"}
+knitr::include_graphics(path = "img/RStudio_env.png")
+```
+
+---
+
+
+We can manipulate objects and use them in computation, but those analyses are 
+stored for subsequent use **only if** they are assigned to an object themselves. More info [here](https://r4ds.had.co.nz/workflow-basics.html).
+
+--
+
+```{r}
+my_object * 2
+```
+
+```{r}
+my_object
+```
+
+--
+
+```{r}
+my_new_object <- my_object * 2 
+```
+
+```{r}
+my_object
+my_new_object
+```
+
+---
+
+# Dimensions of objects
+
+## One value
+
+```{r}
+my_object
+```
+
+--
+
+## Multiple values in a vector
+```{r}
+my_vector <- c("One","Two","Pineapple","Squirrel")
+my_vector
+```
+
+---
+
+# Dimensions of objects
+
+## Multiple variables in a data frame
+
+.pull-left[
+```{r, warning=F,message=F}
+my_data_frame <- 
+  data.frame(var1 = my_vector, 
+             var2 = c(1,2,8,17))
+my_data_frame
+```
+]
+
+.pull-right[
+```{r, warning=F,message=F}
+library(tidyverse)
+my_data_frame <- 
+  tibble(var1 = my_vector, 
+         var2 = c(1,2,8,17))
+my_data_frame
+```
+]
+
+
+---
+
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `[ , ]` on an object with one value
+
+```{r}
+my_object[1] # pull out the first value in this object
+```
+
+```{r}
+my_object[2] # pull out the second value in this object
+```
+
+---
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `[ , ]` on an object with many values
+
+```{r}
+my_vector[1] # pull out the first value in this object
+```
+
+```{r}
+my_vector[3] # pull out the third value in this object
+```
+
+```{r}
+my_vector[10] # pull out the tenth value in this object
+```
+
+
+---
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `[ , ]` on a dataframe
+
+.pull-left[
+```{r}
+my_data_frame[1,] 
+```
+]
+
+.pull-right[
+```{r}
+my_data_frame[,2]
+```
+]
+
+.question[What is happening here?]
+ 
+---
+
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `[ , ]` on a dataframe
+
+For 2-dimensional objects, `[,]` operates as `[row,column]`
+
+```{r}
+my_data_frame[4,1] 
+```
+--
+.question[Subsetting tibbles returns tibbles. What if we wanted to grab that single value 
+as a single character object, not a tibble object?]
+
+---
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `[ , ]` on a dataframe
+ For 2-dimensional objects, `[,]` operates as `[row,column]`
+
+```{r}
+my_new_object <- my_data_frame[4,1] 
+my_new_object
+my_new_object$var1
+```
+
+---
+
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## Using `$` on a `named` object. 
+
+`$` pulls out the named variable. 
+--
+
+.pull-left-narrow[
+
+```{r}
+my_data_frame[1:2,]
+names(my_data_frame)
+```
+
+]
+
+--
+
+.pull-right-wide[
+```{r}
+my_data_frame$var1
+```
+]
+
+---
+
+# Pulling data out of objects
+
+There are many ways to extract data from an R object.
+
+## `tidyverse` style: `pull()`
+
+
+```{r}
+my_data_frame %>% 
+  pull(var1)
+```
+
+---
+
+# Extracting data using logical operators
+
+
+operator    | definition                   || operator     | definition
+------------|------------------------------||--------------|----------------
+`<`         | less than                    ||`x`&nbsp;&#124;&nbsp;`y`     | `x` OR `y` 
+`<=`        |	less than or equal to        ||`is.na(x)`    | test if `x` is `NA`
+`>`         | greater than                 ||`!is.na(x)`   | test if `x` is not `NA`
+`>=`        |	greater than or equal to     ||`x %in% y`    | test if `x` is in `y`
+`==`        |	exactly equal to             ||`!(x %in% y)` | test if `x` is not in `y`
+`!=`        |	not equal to                 ||`!x`          | not `x`
+`x & y`     | `x` AND `y`                  ||              |
+
+---
+
+# Extracting data using logical operators
+
+```{r}
+my_sequence <- 1:20
+my_sequence
+```
+```{r, echo=F}
+evens <- my_sequence[c(F,T)]
+```
+
+```{r}
+evens
+```
+
+--
+
+
+```{r}
+evens %in% my_sequence
+```
+
+--
+
+
+```{r}
+my_sequence %in% evens
+```
+
+---
+
+#Extracting data using logical operators
+
+`R` extracts the `TRUE` values from the vector
+
+
+
+```{r}
+my_sequence %in% evens
+```
+
+
+```{r}
+my_sequence[my_sequence %in% evens]
+```
+
+
+---
+
+#Extracting data using logical operators
+
+`R` extracts the `TRUE` values from the vector
+
+```{r}
+my_sequence %in% 3:8
+```
+
+
+```{r}
+my_sequence[my_sequence %in% 3:8]
+```
+
+---
+
+#Extracting data using logical operators
+
+`R` extracts the `TRUE` values from the vector
+
+
+
+```{r}
+my_sequence < 10
+```
+
+
+```{r}
+my_sequence[my_sequence < 10]
+```
+
+
+---
+
+
+# Pulling data out of objects
+
+
+.question[What am I doing here?]
+
+.pull-left[
+```{r}
+my_data_frame
+```
+]
+
+.pull-right[
+
+```{r}
+my_var1 <- my_data_frame %>% 
+  arrange(desc(var2)) %>%
+  pull(var1)
+
+my_data_frame %>%
+  filter(var1 %in% my_var1[1:3]) 
+```
+]
+
+---
+
+.pull-left[
+```{r}
+my_var1 <- my_data_frame %>% 
+  arrange(desc(var2)) 
+my_var1
+my_var1 <- my_var1 %>% pull(var1)
+my_var1
+```
+]
+
+
+--
+
+
+.pull-right[
+
+```{r}
+my_data_frame %>%
+  filter(var1 %in% my_var1[1:3]) 
+```
+]
+
+
+---
+
+# P.S. 
+
+
+- FAQ page on [ECLearn](https://eclearn.emmanuel.edu/courses/3147960/pages/r-and-git-faqs)
+
+```{r, echo=F,out.width="75%"}
+knitr::include_graphics(path = "img/ECLearn_FAQ.png")
+```
+
+
