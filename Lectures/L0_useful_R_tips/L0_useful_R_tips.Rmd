@@ -16,12 +16,17 @@ output:
 ```{r child = "../setup.Rmd"}
 ```
 
+
+```{r,echo=F}
+library(tidyverse)
+```
+
 # The R environment and R objects 
 
 When you `assign` an object to a data structure in R, you store the object in the R environment.
 
 ```{r}
-my_object <- 3 
+my_object <- 3
 ```
 
 --
@@ -66,6 +71,48 @@ my_new_object <- my_object * 2
 my_object
 my_new_object
 ```
+
+---
+
+.question[Why does this code **not** do what we intend?]
+
+```{r, error=T}
+starwars %>%
+  mutate(BMI = mass/height) %>%
+  select(name, height, mass, BMI)
+
+ggplot(data = starwars, aes(y=BMI, x = height)) + 
+  geom_point()
+```
+
+---
+**We never stored the work in our environment.**
+
+Two possible solutions: 
+
+.pull-left[
+A direct pipe
+```{r, warning=F}
+starwars %>%
+  mutate(BMI = mass/height) %>%
+  select(name, height, mass, BMI) %>% #<<
+  ggplot(aes(y = BMI, x = height)) + 
+  geom_point()
+```
+]
+
+
+.pull-right[
+Saving a new object and plotting that
+```{r, warning=F}
+starwars_bmi <- starwars %>% #<<
+  mutate(BMI = mass/height) %>%
+  select(name, height, mass, BMI)
+ggplot(data = starwars_bmi, aes(y = BMI, x = height)) + #<<
+  geom_point()
+```
+
+]
 
 ---
 

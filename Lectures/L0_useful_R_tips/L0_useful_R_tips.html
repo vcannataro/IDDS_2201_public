@@ -36,13 +36,16 @@ layout: true
 
 ---
 
+
+
+
 # The R environment and R objects 
 
 When you `assign` an object to a data structure in R, you store the object in the R environment.
 
 
 ```r
-my_object &lt;- 3 
+my_object &lt;- 3
 ```
 
 --
@@ -113,6 +116,76 @@ my_new_object
 ```
 ## [1] 6
 ```
+
+---
+
+.question[Why does this code **not** do what we intend?]
+
+
+```r
+starwars %&gt;%
+  mutate(BMI = mass/height) %&gt;%
+  select(name, height, mass, BMI)
+```
+
+```
+## # A tibble: 87 x 4
+##   name           height  mass   BMI
+##   &lt;chr&gt;           &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Luke Skywalker    172    77 0.448
+## 2 C-3PO             167    75 0.449
+## 3 R2-D2              96    32 0.333
+## 4 Darth Vader       202   136 0.673
+## 5 Leia Organa       150    49 0.327
+## 6 Owen Lars         178   120 0.674
+## # … with 81 more rows
+```
+
+```r
+ggplot(data = starwars, aes(y=BMI, x = height)) + 
+  geom_point()
+```
+
+```
+## Error in FUN(X[[i]], ...): object 'BMI' not found
+```
+
+&lt;img src="L0_useful_R_tips_files/figure-html/unnamed-chunk-10-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+**We never stored the work in our environment.**
+
+Two possible solutions: 
+
+.pull-left[
+A direct pipe
+
+```r
+starwars %&gt;%
+  mutate(BMI = mass/height) %&gt;%
+* select(name, height, mass, BMI) %&gt;%
+  ggplot(aes(y = BMI, x = height)) + 
+  geom_point()
+```
+
+&lt;img src="L0_useful_R_tips_files/figure-html/unnamed-chunk-11-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+
+
+.pull-right[
+Saving a new object and plotting that
+
+```r
+*starwars_bmi &lt;- starwars %&gt;%
+  mutate(BMI = mass/height) %&gt;%
+  select(name, height, mass, BMI)
+*ggplot(data = starwars_bmi, aes(y = BMI, x = height)) +
+  geom_point()
+```
+
+&lt;img src="L0_useful_R_tips_files/figure-html/unnamed-chunk-12-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+]
 
 ---
 
