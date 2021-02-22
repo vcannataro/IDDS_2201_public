@@ -21,7 +21,7 @@ output:
 When you `assign` an object to a data structure in R, you store the object in the R environment.
 
 ```{r}
-my_object <- 3
+my_object <- 3 
 ```
 
 --
