@@ -604,7 +604,7 @@ class: middle
 ## Student records
 
 - Have:
-  - Enrolment: official university enrolment records
+  - Enrollment: official university enrollment records
   - Survey: Student provided info missing students who never filled it out and including students who filled it out but dropped the class
 - Want: Survey info for all enrolled in class 
 
@@ -615,7 +615,7 @@ class: middle
 .pull-left[
 
 ```r
-enrolment
+enrollment
 ```
 
 ```
@@ -653,7 +653,7 @@ survey
 .panel[.panel-name[In class]
 
 ```r
-enrolment %&gt;% 
+enrollment %&gt;% 
 * left_join(survey, by = "id")
 ```
 
@@ -670,7 +670,7 @@ enrolment %&gt;%
 .panel[.panel-name[Survey missing]
 
 ```r
-enrolment %&gt;% 
+enrollment %&gt;% 
 * anti_join(survey, by = "id")
 ```
 
@@ -686,7 +686,7 @@ enrolment %&gt;%
 
 ```r
 survey %&gt;% 
-* anti_join(enrolment, by = "id")
+* anti_join(enrollment, by = "id")
 ```
 
 ```
@@ -853,11 +853,38 @@ class: middle
 
 # .hand[We...]
 
-.huge[.green[have]] .hand[data organised in an unideal way for our analysis]
+.huge[.green[have]] .hand[data organized in an unideal way for our analysis]
 
-.huge[.pink[want]] .hand[to reorganise the data to carry on with our analysis]
+.huge[.pink[want]] .hand[to reorganize the data to carry on with our analysis]
 
 ---
+
+background-image: url("img/tidydata_2.jpg")
+background-size: contain
+
+---
+
+background-image: url("img/tidydata_3.jpg")
+background-size: contain
+
+---
+
+background-image: url("img/tidydata_4.jpg")
+background-size: contain
+
+---
+
+background-image: url("img/tidydata_5.jpg")
+background-size: contain
+
+
+---
+
+background-image: url("img/tidydata_7.jpg")
+background-size: contain
+
+---
+
 
 ## Data: Sales
 
@@ -1313,6 +1340,18 @@ ggplot(trump_longer,
 ]
 
 ]
+
+
+---
+
+# Attributions
+
+Some of the material in this slide deck was inspired by and/or partially adapted from several open-source data science resources, including
+
+- The [R for Data Science](https://r4ds.had.co.nz/) textbook by Hadley Wickham &amp; Garrett Grolemund [CC BY-NC-ND 3.0 US](https://creativecommons.org/licenses/by-nc-nd/3.0/us/) 
+- The [datasciencebox](https://github.com/rstudio-education/datascience-box) by Mine Çetinkaya-Rundel [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 
+- Artwork by @allison_horst [CC BY-SA 4.1](https://creativecommons.org/licenses/by-sa/4.0/) 
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
