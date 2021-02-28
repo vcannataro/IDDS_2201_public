@@ -784,7 +784,7 @@ purchases %&gt;%
 ```r
 purchases %&gt;% 
   left_join(prices) %&gt;%
-* summarise(total_revenue = sum(price))
+* summarize(total_revenue = sum(price))
 ```
 
 ```
@@ -822,7 +822,7 @@ purchases %&gt;%
 purchases %&gt;% 
   left_join(prices) %&gt;%
 * group_by(customer_id) %&gt;%
-  summarise(total_revenue = sum(price))
+  summarize(total_revenue = sum(price))
 ```
 
 ```

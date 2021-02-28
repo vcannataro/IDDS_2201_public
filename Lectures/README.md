@@ -7,7 +7,7 @@ Lecture notes for the IDDS 2201 course.
 - [Lecture 3.2, Data viz part 2](https://vcannataro.github.io/IDDS_2201_public/Lectures/L3_data_visualization/L3_data_visualization_p2.html#1)
 - [Lecture 4.1, Data transformation](https://vcannataro.github.io/IDDS_2201_public/Lectures/L4_transforming_data/L4_data_transform.html#1)
 - [Lecture 4.2, Data transformation, merging data frame, and tidying data](https://vcannataro.github.io/IDDS_2201_public/Lectures/L4_transforming_data/L4_data_transform_p2.html#1)
-
+- [Lecture 5, Data types, data classes, and data recoding](https://vcannataro.github.io/IDDS_2201_public/Lectures/L5_data_types_classes_recoding/L5_data_types_classes_recode.html#1)
 
 
 

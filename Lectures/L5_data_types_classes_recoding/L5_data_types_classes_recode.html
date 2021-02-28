@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Data types, classes, and data recoding</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Vincent L. Cannataro, Ph.D." />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/font-awesome/css/all.css" rel="stylesheet" />
+    <link href="libs/font-awesome/css/v4-shims.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <script src="libs/htmlwidgets/htmlwidgets.js"></script>
+    <script src="libs/pymjs/pym.v1.js"></script>
+    <script src="libs/widgetframe-binding/widgetframe.js"></script>
+    <link rel="stylesheet" href="../xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Data types, classes, and data recoding
+## <br><br> IDDS 2201: Data Analytics, Module 5
+### Vincent L. Cannataro, Ph.D.
+
+---
+
+
+
+
+
+layout: true
+  
+&lt;!-- &lt;div class="my-footer"&gt; --&gt;
+&lt;!-- &lt;span&gt; --&gt;
+&lt;!-- &lt;a href="https://introds.org" target="_blank"&gt;introds.org&lt;/a&gt; --&gt;
+&lt;!-- &lt;/span&gt; --&gt;
+&lt;!-- &lt;/div&gt;  --&gt;
+
+---
+
+
+
+class: middle
+
+# Why should you care about data types?
+
+---
+
+## Example: Cat lovers
+
+A survey asked respondents their name and number of cats. The instructions said to enter the number of cats as a numerical value.
+
+
+```r
+cat_lovers &lt;- read_csv("data/cat-lovers.csv")
+```
+
+
+```
+## # A tibble: 60 x 3
+##   name           number_of_cats handedness
+##   &lt;chr&gt;          &lt;chr&gt;          &lt;chr&gt;     
+## 1 Bernice Warren 0              left      
+## 2 Woodrow Stone  0              left      
+## 3 Willie Bass    1              left      
+## 4 Tyrone Estrada 3              left      
+## 5 Alex Daniels   3              left      
+## 6 Jane Bates     2              left      
+## # … with 54 more rows
+```
+
+---
+
+## Oh why won't you work?!
+
+
+```r
+cat_lovers %&gt;%
+  summarise(mean_cats = mean(number_of_cats))
+```
+
+```
+## Warning in mean.default(number_of_cats): argument is not numeric
+## or logical: returning NA
+```
+
+```
+## # A tibble: 1 x 1
+##   mean_cats
+##       &lt;dbl&gt;
+## 1        NA
+```
+
+---
+
+
+```r
+?mean
+```
+
+&lt;img src="img/mean-help.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Oh why won't you still work??!!
+
+
+```r
+cat_lovers %&gt;%
+  summarise(mean_cats = mean(number_of_cats, na.rm = TRUE))
+```
+
+```
+## Warning in mean.default(number_of_cats, na.rm = TRUE): argument
+## is not numeric or logical: returning NA
+```
+
+```
+## # A tibble: 1 x 1
+##   mean_cats
+##       &lt;dbl&gt;
+## 1        NA
+```
+
+---
+
+## Take a breath and look at your data
+
+.question[
+What is the type of the `number_of_cats` variable?
+]
+
+
+```r
+glimpse(cat_lovers)
+```
+
+```
+## Rows: 60
+## Columns: 3
+## $ name           &lt;chr&gt; "Bernice Warren", "Woodrow Stone", "Wil…
+## $ number_of_cats &lt;chr&gt; "0", "0", "1", "3", "3", "2", "1", "1",…
+## $ handedness     &lt;chr&gt; "left", "left", "left", "left", "left",…
+```
+
+---
+
+## Let's take another look
+
+.small[
+<div id="htmlwidget-4ecd730d7db73d038394" style="width:100%;height:1483.2px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4ecd730d7db73d038394">{"x":{"url":"L5_data_types_classes_recode_files/figure-html//widgets/widget_unnamed-chunk-9.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+]
+
+---
+
+## Sometimes you might need to babysit your respondents
+
+.midi[
+
+```r
+cat_lovers %&gt;%
+  mutate(number_of_cats = case_when(
+    name == "Ginger Clark" ~ 2,
+    name == "Doug Bass"    ~ 3,
+    TRUE                   ~ as.numeric(number_of_cats)
+  )) %&gt;%
+  summarise(mean_cats = mean(number_of_cats))
+```
+
+```
+## Warning: Problem with `mutate()` input `number_of_cats`.
+## ℹ NAs introduced by coercion
+## ℹ Input `number_of_cats` is `case_when(...)`.
+```
+
+```
+## # A tibble: 1 x 1
+##   mean_cats
+##       &lt;dbl&gt;
+## 1     0.833
+```
+]
+
+---
+
+## Always you need to respect data types
+
+
+```r
+cat_lovers %&gt;%
+  mutate(
+    number_of_cats = case_when(
+      name == "Ginger Clark" ~ "2",
+      name == "Doug Bass"    ~ "3",
+      TRUE                   ~ number_of_cats
+    ),
+    number_of_cats = as.numeric(number_of_cats)
+  ) %&gt;%
+  summarise(mean_cats = mean(number_of_cats))
+```
+
+```
+## # A tibble: 1 x 1
+##   mean_cats
+##       &lt;dbl&gt;
+## 1     0.833
+```
+
+---
+
+## Now that we know what we're doing...
+
+
+```r
+*cat_lovers &lt;- cat_lovers %&gt;%
+  mutate(
+    number_of_cats = case_when(
+      name == "Ginger Clark" ~ "2",
+      name == "Doug Bass"    ~ "3",
+      TRUE                   ~ number_of_cats
+    ),
+    number_of_cats = as.numeric(number_of_cats)
+  )
+```
+
+---
+
+## Moral of the story
+
+- If your data does not behave how you expect it to, type coercion upon reading in the data might be the reason.
+- Go in and investigate your data, apply the fix, *save your data*, live happily ever after.
+
+---
+
+class: middle
+
+.hand[.light-blue[now that we have a good motivation for]]  
+.hand[.light-blue[learning about data types in R]]
+
+&lt;br&gt;
+
+.large[
+.hand[.light-blue[let's learn about data types in R!]]
+]
+
+---
+
+class: middle
+
+# Data types
+
+---
+
+## Data types in R
+
+- **logical**
+- **double**
+- **integer**
+- **character**
+- and some more, but we won't be focusing on those
+
+---
+
+## Logical &amp; character
+
+.pull-left[
+**logical** - boolean values `TRUE` and `FALSE`
+
+
+```r
+typeof(TRUE)
+```
+
+```
+## [1] "logical"
+```
+]
+.pull-right[
+**character** - character strings
+
+
+```r
+typeof("hello")
+```
+
+```
+## [1] "character"
+```
+]
+
+---
+
+## Double &amp; integer
+
+.pull-left[
+**double** - floating point numerical values (default numerical type)
+
+
+```r
+typeof(1.335)
+```
+
+```
+## [1] "double"
+```
+
+```r
+typeof(7)
+```
+
+```
+## [1] "double"
+```
+]
+.pull-right[
+**integer** - integer numerical values (indicated with an `L`)
+
+
+```r
+typeof(7L)
+```
+
+```
+## [1] "integer"
+```
+
+```r
+typeof(1:3)
+```
+
+```
+## [1] "integer"
+```
+]
+
+---
+
+## Concatenation
+
+Vectors can be constructed using the `c()` function.
+
+
+```r
+c(1, 2, 3)
+```
+
+```
+## [1] 1 2 3
+```
+
+```r
+c("Hello", "World!")
+```
+
+```
+## [1] "Hello"  "World!"
+```
+
+```r
+c(c("hi", "hello"), c("bye", "jello"))
+```
+
+```
+## [1] "hi"    "hello" "bye"   "jello"
+```
+
+---
+
+## Converting between types
+
+.hand[with intention...]
+
+.pull-left[
+
+```r
+x &lt;- 1:3
+x
+```
+
+```
+## [1] 1 2 3
+```
+
+```r
+typeof(x)
+```
+
+```
+## [1] "integer"
+```
+]
+--
+.pull-right[
+
+```r
+y &lt;- as.character(x)
+y
+```
+
+```
+## [1] "1" "2" "3"
+```
+
+```r
+typeof(y)
+```
+
+```
+## [1] "character"
+```
+]
+
+---
+
+## Converting between types
+
+.hand[with intention...]
+
+.pull-left[
+
+```r
+x &lt;- c(TRUE, FALSE)
+x
+```
+
+```
+## [1]  TRUE FALSE
+```
+
+```r
+typeof(x)
+```
+
+```
+## [1] "logical"
+```
+]
+--
+.pull-right[
+
+```r
+y &lt;- as.numeric(x)
+y
+```
+
+```
+## [1] 1 0
+```
+
+```r
+typeof(y)
+```
+
+```
+## [1] "double"
+```
+]
+
+---
+
+## Converting between types
+
+.hand[without intention...]
+
+R will happily convert between various types without complaint when different types of data are concatenated in a vector, and that's not always a great thing!
+
+.pull-left[
+
+```r
+c(1, "Hello")
+```
+
+```
+## [1] "1"     "Hello"
+```
+
+```r
+c(FALSE, 3L)
+```
+
+```
+## [1] 0 3
+```
+]
+--
+.pull-right[
+
+```r
+c(1.2, 3L)
+```
+
+```
+## [1] 1.2 3.0
+```
+
+```r
+c(2L, "two")
+```
+
+```
+## [1] "2"   "two"
+```
+]
+
+---
+
+## Explicit vs. implicit coercion
+
+Let's give formal names to what we've seen so far:
+
+--
+- **Explicit coercion** is when you call a function like `as.logical()`, `as.numeric()`, `as.integer()`, `as.double()`, or `as.character()`
+
+
+--
+- **Implicit coercion** happens when you use a vector in a specific context that expects a certain type of vector
+
+---
+
+.midi[
+.your-turn[
+### .hand[Your turn!]
+
+- Assignment on ECLearn &gt; `in-class exercise, data types and recoding` &gt; accept assignment, open `type-coercion.Rmd` and knit.
+- What is the type of the given vectors? First, guess. Then, try it out in R by removing the comment symbol (`#`). 
+If your guess was correct, great! If not, discuss why they have that type.
+]
+]
+
+--
+
+.small[
+**Example:** Suppose we want to know the type of `c(1, "a")`. First, I'd look at: 
+
+.pull-left[
+
+```r
+typeof(1)
+```
+
+```
+## [1] "double"
+```
+]
+.pull-right[
+
+```r
+typeof("a")
+```
+
+```
+## [1] "character"
+```
+]
+
+and make a guess based on these. Then finally I'd check:
+.pull-left[
+
+```r
+typeof(c(1, "a"))
+```
+
+```
+## [1] "character"
+```
+]
+]
+
+---
+
+class: middle
+
+# Special values
+
+---
+
+## Special values
+
+- `NA`: Not available
+- `NaN`: Not a number
+- `Inf`: Positive infinity
+- `-Inf`: Negative infinity
+
+--
+
+.pull-left[
+
+```r
+pi / 0
+```
+
+```
+## [1] Inf
+```
+
+```r
+0 / 0
+```
+
+```
+## [1] NaN
+```
+]
+.pull-right[
+
+```r
+1/0 - 1/0
+```
+
+```
+## [1] NaN
+```
+
+```r
+1/0 + 1/0
+```
+
+```
+## [1] Inf
+```
+]
+
+---
+
+## `NA`s are special
+
+
+```r
+x &lt;- c(1, 2, 3, 4, NA)
+```
+
+
+```r
+mean(x)
+```
+
+```
+## [1] NA
+```
+
+```r
+mean(x, na.rm = TRUE)
+```
+
+```
+## [1] 2.5
+```
+
+```r
+summary(x)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##    1.00    1.75    2.50    2.50    3.25    4.00       1
+```
+
+---
+
+## `NA`s are logical
+
+R uses `NA` to represent missing values in its data structures.
+
+
+```r
+typeof(NA)
+```
+
+```
+## [1] "logical"
+```
+
+---
+
+## Mental model for `NA`s
+
+- Unlike `NaN`, `NA`s are genuinely unknown values
+- But that doesn't mean they can't function in a logical way
+- Let's think about why `NA`s are logical...
+
+--
+
+.question[
+Why do the following give different answers?
+]
+.pull-left[
+
+```r
+# TRUE or NA
+TRUE | NA
+```
+
+```
+## [1] TRUE
+```
+]
+.pull-right[
+
+```r
+# FALSE or NA
+FALSE | NA
+```
+
+```
+## [1] NA
+```
+]
+
+`\(\rightarrow\)` See next slide for answers...
+
+---
+
+- `NA` is unknown, so it could be `TRUE` or `FALSE`
+
+.pull-left[
+.midi[
+- `TRUE | NA`
+
+```r
+TRUE | TRUE  # if NA was TRUE
+```
+
+```
+## [1] TRUE
+```
+
+```r
+TRUE | FALSE # if NA was FALSE
+```
+
+```
+## [1] TRUE
+```
+]
+]
+.pull-right[
+.midi[
+- `FALSE | NA`
+
+```r
+FALSE | TRUE  # if NA was TRUE
+```
+
+```
+## [1] TRUE
+```
+
+```r
+FALSE | FALSE # if NA was FALSE
+```
+
+```
+## [1] FALSE
+```
+]
+]
+
+- Doesn't make sense for mathematical operations 
+- Makes sense in the context of missing data
+
+
+---
+
+
+class: middle
+
+# Data classes
+
+
+---
+
+## Data classes
+
+We talked about *types* so far, next we'll introduce the concept of *classes*
+
+- Vectors are like Lego building blocks
+
+--
+- We stick them together to build more complicated constructs, e.g. *representations of data*
+
+--
+- The **class** attribute relates to the S3 class of an object which determines its behavior
+- You don't need to worry about what S3 classes really mean, but you can read more about it [here](https://adv-r.hadley.nz/s3.html#s3-classes) if you're curious
+
+--
+- Examples: factors, dates, and data frames
+
+---
+
+## Factors
+
+R uses factors to handle categorical variables, variables that have a fixed and known set of possible values
+
+
+```r
+x &lt;- factor(c("BS", "MS", "PhD", "MS"))
+x
+```
+
+```
+## [1] BS  MS  PhD MS 
+## Levels: BS MS PhD
+```
+
+--
+
+.pull-left[
+
+```r
+typeof(x)
+```
+
+```
+## [1] "integer"
+```
+]
+.pull-right[
+
+```r
+class(x)
+```
+
+```
+## [1] "factor"
+```
+]
+
+
+---
+
+## More on factors
+
+We can think of factors like character (level labels) and an integer (level numbers) glued together
+
+
+```r
+glimpse(x)
+```
+
+```
+##  Factor w/ 3 levels "BS","MS","PhD": 1 2 3 2
+```
+
+```r
+as.integer(x)
+```
+
+```
+## [1] 1 2 3 2
+```
+
+---
+
+## Dates
+
+
+```r
+y &lt;- as.Date("2021-03-02")
+y
+```
+
+```
+## [1] "2021-03-02"
+```
+
+```r
+typeof(y)
+```
+
+```
+## [1] "double"
+```
+
+```r
+class(y)
+```
+
+```
+## [1] "Date"
+```
+
+---
+
+## More on dates
+
+We can think of dates like an integer (the number of days since the origin, 1 Jan 1970) and an integer (the origin) glued together
+
+
+```r
+as.integer(y)
+```
+
+```
+## [1] 18688
+```
+
+```r
+as.integer(y) / 365.25 # roughly 51 yrs
+```
+
+```
+## [1] 51.16496
+```
+
+---
+
+## Data frames
+
+We can think of data frames like like vectors of equal length glued together
+
+
+```r
+df &lt;- data.frame(x = 1:2, y = 3:4)
+df
+```
+
+```
+##   x y
+## 1 1 3
+## 2 2 4
+```
+
+.pull-left[
+
+```r
+typeof(df)
+```
+
+```
+## [1] "list"
+```
+]
+.pull-right[
+
+```r
+class(df)
+```
+
+```
+## [1] "data.frame"
+```
+]
+
+---
+
+## Lists
+
+Lists are a generic vector container vectors of any type can go in them
+
+
+```r
+l &lt;- list(
+  x = 1:4,
+  y = c("hi", "hello", "jello"),
+  z = c(TRUE, FALSE)
+)
+l
+```
+
+```
+## $x
+## [1] 1 2 3 4
+## 
+## $y
+## [1] "hi"    "hello" "jello"
+## 
+## $z
+## [1]  TRUE FALSE
+```
+
+---
+
+## Lists and data frames
+
+- A data frame is a special list containing vectors of equal length
+- When we use the `pull()` function, we extract a vector from the data frame
+
+
+```r
+df
+```
+
+```
+##   x y
+## 1 1 3
+## 2 2 4
+```
+
+```r
+df %&gt;%
+  pull(y)
+```
+
+```
+## [1] 3 4
+```
+
+
+---
+
+class: middle
+
+# Working with factors
+
+---
+
+
+
+## Read data in as character strings
+
+
+```r
+glimpse(cat_lovers)
+```
+
+```
+## Rows: 60
+## Columns: 3
+## $ name           &lt;chr&gt; "Bernice Warren", "Woodrow Stone", "Wil…
+## $ number_of_cats &lt;chr&gt; "0", "0", "1", "3", "3", "2", "1", "1",…
+## $ handedness     &lt;chr&gt; "left", "left", "left", "left", "left",…
+```
+
+---
+
+## But coerce when plotting
+
+
+```r
+ggplot(cat_lovers, mapping = aes(x = handedness)) +
+  geom_bar()
+```
+
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-48-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Use forcats to manipulate factors
+
+
+```r
+cat_lovers %&gt;%
+* mutate(handedness = fct_infreq(handedness)) %&gt;%
+  ggplot(mapping = aes(x = handedness)) +
+  geom_bar()
+```
+
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-49-1.png" width="55%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Come for the functionality
+
+.pull-left[
+... stay for the logo
+]
+.pull-right[
+&lt;img src="img/forcats-part-of-tidyverse.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-left-wide[
+- Factors are useful when you have true categorical data and you want to override the ordering of character vectors to improve display
+- They are also useful in modeling scenarios
+- The **forcats** package provides a suite of useful tools that solve common problems with factors
+]
+
+---
+
+.small[
+.your-turn[
+### .hand[Your turn!]
+
+- Assignment on ECLearn &gt; `in-class exercise, data types and recoding` &gt; accept assignment, open `hotels-forcats.Rmd` &gt; knit.
+- Recreate the x-axis of the following plot. 
+- **Stretch goal:** Recreate the y-axis.
+]
+]
+
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-51-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+???
+hotels %&gt;%
+mutate(arrival_date_month = fct_relevel(arrival_date_month, month.name)) %&gt;%
+group_by(hotel, arrival_date_month) %&gt;%   # group by hotel type and arrival month
+summarise(mean_adr = mean(adr)) %&gt;%       # calculate mean_adr for each group
+ggplot(aes(
+x = arrival_date_month,
+y = mean_adr,                           # y-axis is the mean_adr calculated above
+group = hotel,                          # group lines by hotel type
+color = hotel)                          # and color by hotel type
+) +
+geom_line() +                             # use lines to represent data
+scale_y_continuous(labels = label_dollar()) +
+theme_minimal() +                         # use a minimal theme
+labs(x = "Arrival month",                 # customize labels
+y = "Mean ADR (average daily rate)",
+title = "Comparison of resort and city hotel prices across months",
+subtitle = "Resort hotel prices soar in the summer while city hotel prices remain\nrelatively constant throughout the year",
+color = "Hotel type") +
+theme(axis.text.x = 
+          element_text(
+            angle=90, # text at 90 degrees
+            hjust=1,  # right justified
+            vjust=0.5 # centered on the tick marks
+          )
+  )
+---
+
+class: middle
+
+# Working with dates
+
+---
+
+## Make a date
+
+.pull-left[
+&lt;img src="img/lubridate-not-part-of-tidyverse.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+- **lubridate** is the tidyverse-friendly package that makes dealing with dates a little easier
+- It's not one of the *core* tidyverse packages, hence it's installed with `install.packages("tidyverse)` but it's not loaded with it, and needs to be explicitly loaded with `library(lubridate)`
+]
+
+---
+
+background-image: url("img/lubridate.png")
+background-size: contain
+
+---
+
+
+
+
+class: middle
+
+.hand[.light-blue[
+we're just going to scratch the surface of working with dates in R here...
+]]
+
+---
+
+.question[
+Calculate and visualize the number of bookings on any given arrival date.
+]
+
+
+```r
+hotels %&gt;%
+  select(starts_with("arrival_"))
+```
+
+```
+## # A tibble: 119,390 x 4
+##   arrival_date_ye… arrival_date_mo… arrival_date_we…
+##              &lt;dbl&gt; &lt;chr&gt;                       &lt;dbl&gt;
+## 1             2015 July                           27
+## 2             2015 July                           27
+## 3             2015 July                           27
+## 4             2015 July                           27
+## 5             2015 July                           27
+## 6             2015 July                           27
+## # … with 119,384 more rows, and 1 more variable:
+## #   arrival_date_day_of_month &lt;dbl&gt;
+```
+
+---
+
+## Step 1. Construct dates
+
+.midi[
+
+```r
+library(glue)
+
+hotels %&gt;%
+  mutate(
+*   arrival_date = glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")
+  ) %&gt;% 
+  relocate(arrival_date) # moves column to the front
+```
+
+```
+## # A tibble: 119,390 x 33
+##   arrival_date hotel is_canceled lead_time arrival_date_ye…
+##   &lt;glue&gt;       &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt;
+## 1 2015 July 1  Reso…           0       342             2015
+## 2 2015 July 1  Reso…           0       737             2015
+## 3 2015 July 1  Reso…           0         7             2015
+## 4 2015 July 1  Reso…           0        13             2015
+...
+```
+]
+
+---
+
+background-image: url("img/dplyr_relocate.png")
+background-size: contain
+
+
+---
+
+
+
+## Step 2. Count bookings per date
+
+.midi[
+
+```r
+hotels %&gt;%
+  mutate(arrival_date = glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")) %&gt;%
+  count(arrival_date)
+```
+
+```
+## # A tibble: 793 x 2
+##   arrival_date       n
+## * &lt;glue&gt;         &lt;int&gt;
+## 1 2015 August 1    110
+## 2 2015 August 10   207
+## 3 2015 August 11   117
+## 4 2015 August 12   133
+## 5 2015 August 13   107
+## 6 2015 August 14   329
+## # … with 787 more rows
+```
+]
+
+---
+
+## Step 3. Visualize bookings per date
+
+.midi[
+
+```r
+hotels %&gt;%
+  mutate(arrival_date = glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")) %&gt;%
+  count(arrival_date) %&gt;%
+  ggplot(aes(x = arrival_date, y = n, group = 1)) +
+  geom_line()
+```
+
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-56-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.hand[zooming in a bit...]
+
+.question[
+Why does the plot start with August when we know our data start in July? And why does 10 August come after 1 August?
+]
+
+.midi[
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-57-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Step 1. *REVISED* Construct dates "as dates"
+
+.midi[
+
+```r
+library(lubridate)
+
+hotels %&gt;%
+  mutate(
+*   arrival_date = lubridate::ymd(
+      glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")
+    ) 
+  ) %&gt;% 
+  relocate(arrival_date)
+```
+
+```
+## # A tibble: 119,390 x 33
+##   arrival_date hotel is_canceled lead_time arrival_date_ye…
+##   &lt;date&gt;       &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt;
+## 1 2015-07-01   Reso…           0       342             2015
+## 2 2015-07-01   Reso…           0       737             2015
+## 3 2015-07-01   Reso…           0         7             2015
+## 4 2015-07-01   Reso…           0        13             2015
+...
+```
+]
+
+---
+
+background-image: url("img/lubridate_ymd.png")
+background-size: contain
+
+---
+
+
+
+## Step 2. Count bookings per date
+
+.midi[
+
+```r
+hotels %&gt;%
+  mutate(arrival_date = lubridate::ymd(
+    glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")
+  )) %&gt;% 
+  count(arrival_date)
+```
+
+```
+## # A tibble: 793 x 2
+##   arrival_date     n
+## * &lt;date&gt;       &lt;int&gt;
+## 1 2015-07-01     122
+## 2 2015-07-02      93
+## 3 2015-07-03      56
+## 4 2015-07-04      88
+## 5 2015-07-05      53
+## 6 2015-07-06      75
+## # … with 787 more rows
+```
+]
+
+---
+
+## Step 3a. Visualize bookings per date
+
+.midi[
+
+```r
+hotels %&gt;%
+  mutate(arrival_date = lubridate::ymd(
+    glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")
+  )) %&gt;% 
+  count(arrival_date) %&gt;%
+  ggplot(aes(x = arrival_date, y = n)) +
+  geom_line()
+```
+
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-60-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Step 3b. Visualize using a smooth curve
+
+.midi[
+
+```r
+hotels %&gt;%
+  mutate(arrival_date = lubridate::ymd(
+    glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")
+  )) %&gt;% 
+  count(arrival_date) %&gt;%
+  ggplot(aes(x = arrival_date, y = n)) +
+* geom_smooth()
+```
+
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-61-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+
+class: middle
+
+# Case study: Religion and income
+
+---
+
+&lt;img src="img/relig-income.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+.footnote[
+Source: [pewforum.org/religious-landscape-study/income-distribution](https://www.pewforum.org/religious-landscape-study/income-distribution/), Retrieved 14 April, 2020
+]
+
+---
+
+## Read data 
+
+
+```r
+library(readxl)
+rel_inc &lt;- read_excel("data/relig-income.xlsx")
+```
+
+
+
+```r
+rel_inc
+```
+
+```
+## # A tibble: 12 x 6
+##   `Religious trad… `Less than $30,… `$30,000-$49,99…
+##   &lt;chr&gt;                       &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Buddhist                     0.36             0.18
+## 2 Catholic                     0.36             0.19
+## 3 Evangelical Pro…             0.35             0.22
+## 4 Hindu                        0.17             0.13
+## 5 Historically Bl…             0.53             0.22
+## 6 Jehovah's Witne…             0.48             0.25
+## # … with 6 more rows, and 3 more variables:
+## #   `$50,000-$99,999` &lt;dbl&gt;, `$100,000 or more` &lt;dbl&gt;, `Sample
+## #   Size` &lt;dbl&gt;
+```
+
+
+---
+
+## Rename columns
+
+.midi[
+
+```r
+rel_inc %&gt;%
+  rename( 
+    religion = `Religious tradition`, 
+    n = `Sample Size` 
+  ) 
+```
+
+```
+## # A tibble: 12 x 6
+##   religion `Less than $30,… `$30,000-$49,99… `$50,000-$99,99…
+##   &lt;chr&gt;               &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Buddhist             0.36             0.18             0.32
+## 2 Catholic             0.36             0.19             0.26
+## 3 Evangel…             0.35             0.22             0.28
+## 4 Hindu                0.17             0.13             0.34
+## 5 Histori…             0.53             0.22             0.17
+## 6 Jehovah…             0.48             0.25             0.22
+## # … with 6 more rows, and 2 more variables: `$100,000 or
+## #   more` &lt;dbl&gt;, n &lt;dbl&gt;
+```
+]
+
+---
+
+.question[
+If we want a new variable called `income` with levels such as "Less than $30,000", "$30,000-$49,999", ... etc. which function should we use?
+]
+
+
+```
+## # A tibble: 48 x 4
+##    religion                   n income            proportion
+##    &lt;chr&gt;                  &lt;dbl&gt; &lt;chr&gt;                  &lt;dbl&gt;
+##  1 Buddhist                 233 Less than $30,000       0.36
+##  2 Buddhist                 233 $30,000-$49,999         0.18
+##  3 Buddhist                 233 $50,000-$99,999         0.32
+##  4 Buddhist                 233 $100,000 or more        0.13
+##  5 Catholic                6137 Less than $30,000       0.36
+##  6 Catholic                6137 $30,000-$49,999         0.19
+##  7 Catholic                6137 $50,000-$99,999         0.26
+##  8 Catholic                6137 $100,000 or more        0.19
+##  9 Evangelical Protestant  7462 Less than $30,000       0.35
+## 10 Evangelical Protestant  7462 $30,000-$49,999         0.22
+## 11 Evangelical Protestant  7462 $50,000-$99,999         0.28
+## 12 Evangelical Protestant  7462 $100,000 or more        0.14
+## 13 Hindu                    172 Less than $30,000       0.17
+## 14 Hindu                    172 $30,000-$49,999         0.13
+## 15 Hindu                    172 $50,000-$99,999         0.34
+## # … with 33 more rows
+```
+
+---
+
+## Pivot longer
+
+.midi[
+
+```r
+rel_inc %&gt;%
+  rename(
+    religion = `Religious tradition`,
+    n = `Sample Size`
+  ) %&gt;%
+  pivot_longer( 
+    # data lives in all columns EXCEPT `religion` and `n`
+    cols = -c(religion, n),   
+    names_to = "income",  
+    values_to = "proportion" 
+  ) 
+```
+
+```
+## # A tibble: 48 x 4
+##   religion     n income            proportion
+##   &lt;chr&gt;    &lt;dbl&gt; &lt;chr&gt;                  &lt;dbl&gt;
+## 1 Buddhist   233 Less than $30,000       0.36
+## 2 Buddhist   233 $30,000-$49,999         0.18
+## 3 Buddhist   233 $50,000-$99,999         0.32
+## 4 Buddhist   233 $100,000 or more        0.13
+## 5 Catholic  6137 Less than $30,000       0.36
+## 6 Catholic  6137 $30,000-$49,999         0.19
+## # … with 42 more rows
+```
+]
+
+---
+
+## Calculate frequencies
+
+.midi[
+
+```r
+rel_inc %&gt;%
+  rename(
+    religion = `Religious tradition`,
+    n = `Sample Size`
+  ) %&gt;%
+  pivot_longer(
+    cols = -c(religion, n), 
+    names_to = "income", 
+    values_to = "proportion"
+  ) %&gt;%
+  mutate(frequency = round(proportion * n)) 
+```
+
+```
+## # A tibble: 48 x 5
+##   religion     n income            proportion frequency
+##   &lt;chr&gt;    &lt;dbl&gt; &lt;chr&gt;                  &lt;dbl&gt;     &lt;dbl&gt;
+## 1 Buddhist   233 Less than $30,000       0.36        84
+## 2 Buddhist   233 $30,000-$49,999         0.18        42
+## 3 Buddhist   233 $50,000-$99,999         0.32        75
+## 4 Buddhist   233 $100,000 or more        0.13        30
+## 5 Catholic  6137 Less than $30,000       0.36      2209
+## 6 Catholic  6137 $30,000-$49,999         0.19      1166
+## # … with 42 more rows
+```
+]
+
+---
+
+## Save data
+
+
+```r
+rel_inc_long &lt;- rel_inc %&gt;% 
+  rename(
+    religion = `Religious tradition`,
+    n = `Sample Size`
+  ) %&gt;%
+  pivot_longer(
+    cols = -c(religion, n), 
+    names_to = "income", 
+    values_to = "proportion"
+  ) %&gt;%
+  mutate(frequency = round(proportion * n))
+```
+
+---
+
+## Barplot
+
+
+```r
+ggplot(rel_inc_long, aes(y = religion, x = frequency)) +
+  geom_col()
+```
+
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-70-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Recode religion
+
+.panelset[
+
+.panel[.panel-name[Recode]
+
+```r
+rel_inc_long &lt;- rel_inc_long %&gt;%
+  mutate(religion = case_when(
+    religion == "Evangelical Protestant"           ~ "Ev. Protestant",
+    religion == "Historically Black Protestant"    ~ "Hist. Black Protestant",
+    religion == 'Unaffiliated (religious "nones")' ~ "Unaffiliated",
+    TRUE                                           ~ religion
+  ))
+```
+]
+
+.panel[.panel-name[Plot]
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-72-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+]
+
+---
+
+## Reverse religion order
+
+.panelset[
+
+.panel[.panel-name[Recode]
+
+```r
+rel_inc_long &lt;- rel_inc_long %&gt;%
+  mutate(religion = fct_rev(religion)) 
+```
+]
+
+.panel[.panel-name[Plot]
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-74-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+]
+
+---
+
+## Add income
+
+.panelset[
+
+.panel[.panel-name[Plot]
+&lt;img src="L5_data_types_classes_recode_files/figure-html/rel-income-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Code]
+
+```r
+ggplot(rel_inc_long, aes(y = religion, x = frequency, fill = income)) + 
+  geom_col() 
+```
+]
+
+]
+
+---
+
+## Fill bars
+
+.panelset[
+
+.panel[.panel-name[Plot]
+&lt;img src="L5_data_types_classes_recode_files/figure-html/rel-income-fill-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Code]
+
+```r
+ggplot(rel_inc_long, aes(y = religion, x = frequency, fill = income)) +
+  geom_col(position = "fill")
+```
+]
+
+]
+
+---
+
+## Change colors
+
+.panelset[
+
+.panel[.panel-name[Plot]
+&lt;img src="L5_data_types_classes_recode_files/figure-html/rel-income-fill-viridis-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Code]
+
+```r
+ggplot(rel_inc_long, aes(y = religion, x = frequency, fill = income)) +
+  geom_col(position = "fill") +
+  scale_fill_viridis_d()
+```
+]
+
+]
+
+---
+
+
+## Change theme
+
+.panelset[
+
+.panel[.panel-name[Plot]
+&lt;img src="L5_data_types_classes_recode_files/figure-html/rel-income-fill-viridis-minimal-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Code]
+
+```r
+ggplot(rel_inc_long, aes(y = religion, x = frequency, fill = income)) +
+  geom_col(position = "fill") +
+  scale_fill_viridis_d() +
+  theme_minimal() 
+```
+]
+
+]
+
+---
+
+## Move legend to the bottom
+
+.panelset[
+
+.panel[.panel-name[Plot]
+&lt;img src="L5_data_types_classes_recode_files/figure-html/bottom-legend-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Code]
+
+```r
+ggplot(rel_inc_long, aes(y = religion, x = frequency, fill = income)) +
+  geom_col(position = "fill") +
+  scale_fill_viridis_d() +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+]
+
+]
+
+---
+
+## Legend adjustments
+
+.panelset[
+
+.panel[.panel-name[Plot]
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-80-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Code]
+
+```r
+ggplot(rel_inc_long, aes(y = religion, x = frequency, fill = income)) +
+  geom_col(position = "fill") +
+  scale_fill_viridis_d() +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(nrow = 2, byrow = TRUE)) 
+```
+]
+
+]
+
+---
+
+## Fix labels
+
+.panelset[
+
+.panel[.panel-name[Plot]
+&lt;img src="L5_data_types_classes_recode_files/figure-html/unnamed-chunk-81-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Code]
+
+```r
+ggplot(rel_inc_long, aes(y = religion, x = frequency, fill = income)) +
+  geom_col(position = "fill") +
+  scale_fill_viridis_d() +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
+  labs(
+    x = "Proportion", y = "", 
+    title = "Income distribution by religious group", 
+    subtitle = "Source: Pew Research Center, Religious Landscape Study", 
+    fill = "Income" 
+  )
+```
+]
+
+]
+
+
+
+
+
+
+---
+
+# Attributions
+
+Some of the material in this slide deck was inspired by and/or partially adapted from several open-source data science resources, including
+
+- The [R for Data Science](https://r4ds.had.co.nz/) textbook by Hadley Wickham &amp; Garrett Grolemund [CC BY-NC-ND 3.0 US](https://creativecommons.org/licenses/by-nc-nd/3.0/us/) 
+- The [datasciencebox](https://github.com/rstudio-education/datascience-box) by Mine Çetinkaya-Rundel [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 
+- Artwork by @allison_horst [CC BY-SA 4.1](https://creativecommons.org/licenses/by-sa/4.0/) 
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightLines": true,
+"highlightStyle": "solarized-light",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

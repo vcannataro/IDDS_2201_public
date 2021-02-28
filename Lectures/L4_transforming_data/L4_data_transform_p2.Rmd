@@ -431,7 +431,7 @@ purchases %>%
 ```{r}
 purchases %>% 
   left_join(prices) %>%
-  summarise(total_revenue = sum(price)) #<<
+  summarize(total_revenue = sum(price)) #<<
 ```
 ]
 ]
@@ -449,7 +449,7 @@ purchases %>%
 purchases %>% 
   left_join(prices) %>%
   group_by(customer_id) %>% #<<
-  summarise(total_revenue = sum(price))
+  summarize(total_revenue = sum(price))
 ```
 ]
 
