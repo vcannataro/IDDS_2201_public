@@ -77,7 +77,7 @@ cat_lovers &lt;- read_csv("data/cat-lovers.csv")
 
 ```r
 cat_lovers %&gt;%
-  summarise(mean_cats = mean(number_of_cats))
+  summarize(mean_cats = mean(number_of_cats))
 ```
 
 ```
@@ -108,7 +108,7 @@ cat_lovers %&gt;%
 
 ```r
 cat_lovers %&gt;%
-  summarise(mean_cats = mean(number_of_cats, na.rm = TRUE))
+  summarize(mean_cats = mean(number_of_cats, na.rm = TRUE))
 ```
 
 ```
@@ -166,7 +166,7 @@ cat_lovers %&gt;%
     name == "Doug Bass"    ~ 3,
     TRUE                   ~ as.numeric(number_of_cats)
   )) %&gt;%
-  summarise(mean_cats = mean(number_of_cats))
+  summarize(mean_cats = mean(number_of_cats))
 ```
 
 ```
@@ -198,7 +198,7 @@ cat_lovers %&gt;%
     ),
     number_of_cats = as.numeric(number_of_cats)
   ) %&gt;%
-  summarise(mean_cats = mean(number_of_cats))
+  summarize(mean_cats = mean(number_of_cats))
 ```
 
 ```
@@ -523,7 +523,7 @@ Let's give formal names to what we've seen so far:
 .your-turn[
 ### .hand[Your turn!]
 
-- Assignment on ECLearn &gt; `in-class exercise, data types and recoding` &gt; accept assignment, open `type-coercion.Rmd` and knit.
+- Assignment on ECLearn &gt; `in-class exercize, data types and recoding` &gt; accept assignment, open `type-coercion.Rmd` and knit.
 - What is the type of the given vectors? First, guess. Then, try it out in R by removing the comment symbol (`#`). 
 If your guess was correct, great! If not, discuss why they have that type.
 ]
@@ -1072,7 +1072,7 @@ cat_lovers %&gt;%
 .your-turn[
 ### .hand[Your turn!]
 
-- Assignment on ECLearn &gt; `in-class exercise, data types and recoding` &gt; accept assignment, open `hotels-forcats.Rmd` &gt; knit.
+- Assignment on ECLearn &gt; `in-class exercize, data types and recoding` &gt; accept assignment, open `hotels-forcats.Rmd` &gt; knit.
 - Recreate the x-axis of the following plot. 
 - **Stretch goal:** Recreate the y-axis.
 ]
@@ -1083,7 +1083,7 @@ cat_lovers %&gt;%
 hotels %&gt;%
 mutate(arrival_date_month = fct_relevel(arrival_date_month, month.name)) %&gt;%
 group_by(hotel, arrival_date_month) %&gt;%   # group by hotel type and arrival month
-summarise(mean_adr = mean(adr)) %&gt;%       # calculate mean_adr for each group
+summarize(mean_adr = mean(adr)) %&gt;%       # calculate mean_adr for each group
 ggplot(aes(
 x = arrival_date_month,
 y = mean_adr,                           # y-axis is the mean_adr calculated above
