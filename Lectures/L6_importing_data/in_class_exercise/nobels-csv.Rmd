@@ -1,0 +1,48 @@
+---
+title: "Nobel winners"
+author: ""
+output: github_document
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+```
+
+
+- ECLearn > Assignments > `in-class exercise, Nobels and sales + Data import` > open `nobels-csv.Rmd` and knit.
+- Read in the `nobels.csv` file from the `data-raw/` folder.
+- Split into two (STEM and non-STEM): 
+  - Create a new data frame, `nobel_stem`, that filters for the STEM fields 
+(Physics, Medicine, Chemistry, and Economics).
+  - Create another data frame, `nobel_nonstem`, that filters for the remaining 
+fields.  
+- Write out the two data frames to `nobel-stem.csv` and `nobel-nonstem.csv`, 
+respectively, to `data/`.
+
+**Hint:** Use the `%in%` operator when `filter()`ing.
+
+
+
+Let's first load the data:
+
+```{r label-me1, eval=FALSE}
+nobel <- ___(___)
+```
+
+Then let's split the data into two:
+
+```{r label-me2, eval=FALSE}
+# stem laureates
+___ <- nobel %>%
+  filter(___)
+
+# non-steam laureates
+___ <- nobel %>%
+  filter(___)
+```
+
+And finally write out the data:
+
+```{r label-me3}
+# add code for writing out the two data frames here
+```
