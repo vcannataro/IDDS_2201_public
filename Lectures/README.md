@@ -9,7 +9,7 @@
 - [Lecture 4.1, Data transformation](https://vcannataro.github.io/IDDS_2201_public/Lectures/L4_transforming_data/L4_data_transform.html#1)
 - [Lecture 4.2, Data transformation, merging data frame, and tidying data](https://vcannataro.github.io/IDDS_2201_public/Lectures/L4_transforming_data/L4_data_transform_p2.html#1)
 - [Lecture 5, Data types, data classes, and data recoding](https://vcannataro.github.io/IDDS_2201_public/Lectures/L5_data_types_classes_recoding/L5_data_types_classes_recode.html#1)
-- [Lecture 6, Importing data](https://vcannataro.github.io/IDDS_2201_public/Lectures/L6_importing_data/LL6_importing_data.html#1)
+- [Lecture 6, Importing data](https://vcannataro.github.io/IDDS_2201_public/Lectures/L6_importing_data/L6_importing_data.html#1)
 - [Lecture 7, Effective data visualization](https://vcannataro.github.io/IDDS_2201_public/Lectures/L7_effective_data_viz/L7_effective_data_visualization.html#1)
 
 
