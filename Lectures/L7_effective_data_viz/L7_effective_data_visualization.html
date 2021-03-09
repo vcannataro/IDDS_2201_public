@@ -709,6 +709,88 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 
 ---
 
+# About those squished axes text...
+
+
+
+.small[
+
+```r
+boston_airbnb %&gt;%
+  ggplot(mapping = aes(x=neighborhood, y=review_scores_rating)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.1,alpha=0.2) + 
+  theme_bw() + 
+  labs(y = "Review scores rating",x = "Neighborhood") 
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/plotting boston airbnb data-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+
+## Change the angle
+
+.small[
+
+```r
+boston_airbnb %&gt;%
+  ggplot(mapping = aes(x=neighborhood, y=review_scores_rating)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.1,alpha=0.2) + 
+  theme_bw() + 
+  labs(y = "Review scores rating",x = "Neighborhood") + 
+* theme(axis.text.x = element_text(angle = 90))
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-32-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Change the horizontal justification
+
+.small[
+
+```r
+boston_airbnb %&gt;%
+  ggplot(mapping = aes(x=neighborhood, y=review_scores_rating)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.1,alpha=0.2) + 
+  theme_bw() + 
+  labs(y = "Review scores rating",x = "Neighborhood") + 
+  theme(axis.text.x = element_text(angle = 90,
+*                                  hjust = 1))
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-33-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+
+## Change the vertical justification
+
+.small[
+
+```r
+boston_airbnb %&gt;%
+  ggplot(mapping = aes(x=neighborhood, y=review_scores_rating)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.1,alpha=0.2) + 
+  theme_bw() + 
+  labs(y = "Review scores rating",x = "Neighborhood") + 
+  theme(axis.text.x = element_text(angle = 90,
+                                   hjust = 1,
+*                                  vjust = 0.5))
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-34-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
 
 # Attributions
 

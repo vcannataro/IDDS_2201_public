@@ -756,6 +756,78 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 
 ---
 
+# About those squished axes text...
+
+```{r load in airbnb data, echo=F}
+boston_airbnb <- read_csv(file = "data/boston_airBnB_data.csv")
+```
+
+.small[
+```{r plotting boston airbnb data, warning=F}
+boston_airbnb %>%
+  ggplot(mapping = aes(x=neighborhood, y=review_scores_rating)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.1,alpha=0.2) + 
+  theme_bw() + 
+  labs(y = "Review scores rating",x = "Neighborhood") 
+```
+]
+
+
+---
+
+## Change the angle
+
+.small[
+```{r, warning=F}
+boston_airbnb %>%
+  ggplot(mapping = aes(x=neighborhood, y=review_scores_rating)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.1,alpha=0.2) + 
+  theme_bw() + 
+  labs(y = "Review scores rating",x = "Neighborhood") + 
+  theme(axis.text.x = element_text(angle = 90)) #<<
+```
+]
+
+---
+
+## Change the horizontal justification
+
+.small[
+```{r, warning=F}
+boston_airbnb %>%
+  ggplot(mapping = aes(x=neighborhood, y=review_scores_rating)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.1,alpha=0.2) + 
+  theme_bw() + 
+  labs(y = "Review scores rating",x = "Neighborhood") + 
+  theme(axis.text.x = element_text(angle = 90,
+                                   hjust = 1)) #<<
+```
+]
+
+
+---
+
+## Change the vertical justification
+
+.small[
+```{r, warning=F}
+boston_airbnb %>%
+  ggplot(mapping = aes(x=neighborhood, y=review_scores_rating)) + 
+  geom_violin() + 
+  geom_jitter(width = 0.1,alpha=0.2) + 
+  theme_bw() + 
+  labs(y = "Review scores rating",x = "Neighborhood") + 
+  theme(axis.text.x = element_text(angle = 90,
+                                   hjust = 1,
+                                   vjust = 0.5)) #<<
+```
+]
+
+
+---
 
 # Attributions
 
