@@ -29,6 +29,51 @@ class: middle
 
 ---
 
+## What is this visualization saying?
+
+```{r, echo=F,out.width="130%"}
+knitr::include_graphics(path = "img/pie-compare_clean.png")
+```
+
+
+Adapted from [Fundamentals of Data Visualization](https://clauswilke.com/dataviz/visualizing-proportions.html#a-case-for-pie-charts) by Claus O. Wilke. 
+
+---
+
+
+## What is this visualization saying?
+
+Is this better?
+
+```{r, echo=F,out.width="55%"}
+knitr::include_graphics(path = "img/stacked-bar_clean.png")
+```
+
+
+Adapted from [Fundamentals of Data Visualization](https://clauswilke.com/dataviz/visualizing-proportions.html#a-case-for-pie-charts) by Claus O. Wilke. 
+
+--
+
+.question[Can we do better still?]
+
+
+
+---
+
+
+## Keep it simple
+
+Do not make your reader work to understand or figure out meaning.
+
+```{r, echo=F,out.width="55%"}
+knitr::include_graphics(path = "img/side-by-side-bar.png")
+```
+
+Adapted from [Fundamentals of Data Visualization](https://clauswilke.com/dataviz/visualizing-proportions.html#a-case-for-pie-charts) by Claus O. Wilke. 
+
+
+---
+
 ## Keep it simple
 
 .pull-left-narrow[
