@@ -86,6 +86,7 @@ ggplot(data = starwars, aes(y=BMI, x = height)) +
 ```
 
 ---
+
 **We never stored the work in our environment.**
 
 Two possible solutions: 
@@ -436,6 +437,18 @@ my_data_frame %>%
 
 
 ---
+
+# In-line code vs. chunks
+
+```{r in_line_code_image,out.width="90%", echo=F}
+knitr::include_graphics("img/Rstudio_code_inline.png")
+```
+
+
+---
+
+
+
 
 # P.S. 
 
