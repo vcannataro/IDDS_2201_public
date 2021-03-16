@@ -33,10 +33,11 @@ library(conflicted)
 conflict_prefer("filter", "dplyr")
 # xaringanExtra
 library(xaringanExtra)
-xaringanExtra::use_panelset
+xaringanExtra::use_panelset()
 
 xaringanExtra::use_search(show_icon = T, auto_search = F)
 xaringanExtra::use_clipboard()
+xaringanExtra::use_tile_view()
 
 # output number of lines
 hook_output <- knitr::knit_hooks$get("output")

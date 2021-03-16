@@ -11,6 +11,7 @@
 - [Lecture 5, Data types, data classes, and data recoding](https://vcannataro.github.io/IDDS_2201_public/Lectures/L5_data_types_classes_recoding/L5_data_types_classes_recode.html#1)
 - [Lecture 6, Importing data](https://vcannataro.github.io/IDDS_2201_public/Lectures/L6_importing_data/L6_importing_data.html#1)
 - [Lecture 7, Effective data visualization](https://vcannataro.github.io/IDDS_2201_public/Lectures/L7_effective_data_viz/L7_effective_data_visualization.html#1)
+- [Lecture 8, Scientific studies, Simpson's paradox, and Doing data science](https://vcannataro.github.io/IDDS_2201_public/Lectures/L8_sci_studies_Simpson_and_doing_data_sci/L8_sci_studies_Simpson_and_doing_data_sci.html#1)
 
 
 # Attributions
