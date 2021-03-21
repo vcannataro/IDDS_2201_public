@@ -14,7 +14,10 @@
 - [Lecture 8, Scientific studies, Simpson's paradox, and Doing data science](https://vcannataro.github.io/IDDS_2201_public/Lectures/L8_sci_studies_Simpson_and_doing_data_sci/L8_sci_studies_Simpson_and_doing_data_sci.html#1)
 
 
-- [Code-along COVID19 exercise](https://vcannataro.github.io/IDDS_2201_public/code_along/code_along_COVID19/code_along_COVID19_final_code.html)
+[Code-along COVID19 exercise](https://vcannataro.github.io/IDDS_2201_public/code_along/code_along_COVID19/code_along_COVID19_final_code.html)
+
+
+- [Lecture 9, Web scraping, examples, and considerations](https://vcannataro.github.io/IDDS_2201_public/Lectures/L9_web_scraping/L9_web_scraping_examples_and_considerations.html#1)
 
 
 
