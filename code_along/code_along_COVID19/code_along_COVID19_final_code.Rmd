@@ -1,0 +1,188 @@
+---
+title: "Code-along COVID19"
+author: "Dr. Cannataro and the Emmanuel College IDDS 2201 students"
+date: "Last updated: `r Sys.Date()`"
+output: html_document
+---
+
+
+```{r load_in_packages, warning=F,message=F}
+library(tidyverse)
+```
+
+
+In this class we will code along together and (hopefully) answer a neat data analytics questions. 
+Along the way, we will see that we have already learned many of the tools we need to complete 
+an exploratory data analysis! 
+
+We will start with a question and build up our analysis together... 
+
+
+
+# Formulate a question
+
+Are there more COVID cases during a certain day of the week?
+
+# Read in your data
+
+The data lives in the `data/` subdirectory. It was gathered from the New York Times COVID19 database, see the README file within `data/` for more information. 
+
+```{r read_in_data}
+COVID_data <- read_csv(file = "data/us-states.csv")
+```
+
+```{r look_at_my_data}
+COVID_data
+```
+
+The data looks good! 
+
+# Check the dimensions
+
+
+```{r check_my_dimensions}
+dim(COVID_data)
+```
+
+
+
+# Look at the top and the bottom of my data
+
+
+```{r look_at_the_top}
+head(COVID_data)
+```
+
+```{r look_at_the_bottom}
+tail(COVID_data)
+```
+
+
+
+# Validate with at least one external data source 
+
+
+We did a quick online search for the total COVID19 cases currently in Wyoming, and the numbers were very similar.
+
+
+# Make a plot
+
+
+
+```{r MA_data}
+COVID_data %>%
+  filter(state == "Massachusetts") %>%
+  ggplot() + 
+  geom_point(aes(x=date, y=cases))
+```
+
+It looks like this is definitely "cumulative" data... total number of cases as of each date.
+
+```{r whole_USA}
+COVID_data %>%
+  group_by(date) %>%
+  summarize(total_cases = sum(cases)) %>%
+  ggplot() + 
+  geom_col(aes(x=date,y=total_cases))
+```
+
+We want new cases each day so we can get at our question. 
+
+## New cases each day. 
+
+
+```{r new_cases_each_day}
+
+COVID_data <- COVID_data %>%
+  group_by(state) %>%
+  # subtract cases from previous cases from this state
+  mutate(new_cases = cases - lag(cases, default = 0)) %>% 
+  ungroup() 
+
+```
+
+
+
+```{r plot_new_cases}
+COVID_data %>%
+  group_by(date) %>%
+  summarize(total_new_cases = sum(new_cases)) %>%
+  ggplot() + 
+  geom_col(aes(x = date, y = total_new_cases))
+```
+
+That's it! New cases each day, with the peaks just where we expect them. 
+
+
+Let's zoom in and see if we can "see" a pattern in reported cases. 
+
+
+```{r plot_new_cases_zoom}
+COVID_data %>%
+  group_by(date) %>%
+  summarize(total_new_cases = sum(new_cases)) %>%
+  filter(date > "2020-07-01",
+         date < "2020-10-01") %>%
+  ggplot() + 
+  geom_col(aes(x = date, y = total_new_cases))
+```
+
+
+It definitely looks like there is some cyclical pattern to case reporting every 7 days. 
+
+
+
+```{r plot_new_cases_zoom_day_of_the_week}
+COVID_data %>%
+  group_by(date) %>%
+  summarize(total_new_cases = sum(new_cases)) %>%
+  mutate(day_of_the_week = lubridate::wday(date, label = TRUE)) %>%
+  filter(date > "2020-07-01",
+         date < "2020-10-01") %>%
+  ggplot() + 
+  geom_col(aes(x = date, y = total_new_cases, fill=day_of_the_week))
+```
+
+
+By adding in the day of the week we see that, for each week, most of the time more cases are reported at the "end" (Thu, Fri, Sat) of the week than the "beginning" of the week. 
+
+
+# Try the easy solution
+
+
+```{r}
+COVID_data <- COVID_data %>%
+  group_by(date) %>%
+  summarize(total_new_cases = sum(new_cases)) %>%
+  mutate(day_of_the_week = lubridate::wday(date, label = TRUE))
+```
+
+We need to add in an index (that we can eventually `group_by()`) that represents each unique week. Luckily, the `lubridate::` package has everything we need to pull out the unique week and year from a date! 
+
+```{r}
+COVID_data %>%
+  mutate(week_index = paste(lubridate::year(date), "-", lubridate::week(date))) %>%
+  group_by(week_index) %>%
+  mutate(week_avg = mean(total_new_cases)) %>%
+  mutate(relative_cases_per_week = total_new_cases / week_avg) %>%
+  ungroup() -> COVID_data
+```
+
+
+
+
+```{r fig.height=6, fig.width=8}
+COVID_data %>%
+  ggplot(aes(x=day_of_the_week, y= relative_cases_per_week)) +
+  geom_boxplot() + 
+  geom_jitter(alpha=0.2) + 
+  coord_cartesian(ylim=c(0.5,1.5)) + 
+  labs(y = "New cases per day relative to the \n average number of cases that week",
+       x = "Day of the week",
+       title = "Are there usually more reported COVID19 cases on a certain day in a given week?",
+       subtitle = "Plot zoomed in to 0.5 to 1.5 new cases relative to weekly average",
+       caption = "Data from the NYTimes COVID19 database: https://github.com/nytimes/covid-19-data/ 
+       Plot by @VinCannataro and the EC IDDS 2201 Data Analytics class") + 
+  theme_bw() 
+```
+

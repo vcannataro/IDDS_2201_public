@@ -14,6 +14,10 @@
 - [Lecture 8, Scientific studies, Simpson's paradox, and Doing data science](https://vcannataro.github.io/IDDS_2201_public/Lectures/L8_sci_studies_Simpson_and_doing_data_sci/L8_sci_studies_Simpson_and_doing_data_sci.html#1)
 
 
+- [Code-along COVID19 exercise](https://vcannataro.github.io/IDDS_2201_public/code_along/code_along_COVID19/code_along_COVID19_final_code.html)
+
+
+
 # Attributions
 
 - Much of the content in these lecture notes was adapted from the wonderful [datasciencebox](https://datasciencebox.org) written by Mine Çetinkaya-Rundel. The work is released with a [Creative Commons Attribution Share Alike 4.0 International](https://github.com/rstudio-education/datascience-box/blob/master/LICENSE.md) license.  
