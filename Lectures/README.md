@@ -18,6 +18,9 @@
 
 
 - [Lecture 9, Web scraping, examples, and considerations](https://vcannataro.github.io/IDDS_2201_public/Lectures/L9_web_scraping/L9_web_scraping_examples_and_considerations.html#1)
+- [Lecture 10, Functions and iteration, with some more web scraping examples](https://vcannataro.github.io/IDDS_2201_public/Lectures/L10_functions_and_iteration/L10_functions_and_iteration.html#1)
+
+
 
 
 

@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Functions and iteration</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Vincent L. Cannataro, Ph.D." />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/font-awesome/css/all.css" rel="stylesheet" />
+    <link href="libs/font-awesome/css/v4-shims.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <script src="libs/mark.js/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":false}) })</script>
+    <script src="libs/clipboard/clipboard.min.js"></script>
+    <link href="libs/xaringanExtra-clipboard/xaringanExtra-clipboard.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-clipboard/xaringanExtra-clipboard.js"></script>
+    <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
+    <link href="libs/tile-view/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view/tile-view.js"></script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"x2b3011a5e6e484f9e879fc1bd0fb901","expires":14}</script>
+    <script src="libs/himalaya/himalaya.js"></script>
+    <script src="libs/js-cookie/js.cookie.js"></script>
+    <link href="libs/editable/editable.css" rel="stylesheet" />
+    <script src="libs/editable/editable.js"></script>
+    <link rel="stylesheet" href="../xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Functions and iteration
+## <br><br> IDDS 2201: Data Analytics, Module 10
+### Vincent L. Cannataro, Ph.D.
+
+---
+
+
+
+
+
+
+
+layout: true
+  
+&lt;!-- &lt;div class="my-footer"&gt; --&gt;
+&lt;!-- &lt;span&gt; --&gt;
+&lt;!-- &lt;a href="https://introds.org" target="_blank"&gt;introds.org&lt;/a&gt; --&gt;
+&lt;!-- &lt;/span&gt; --&gt;
+&lt;!-- &lt;/div&gt;  --&gt;
+
+---
+
+
+
+
+
+class: middle
+
+# Functions
+
+---
+
+## We have been using functions this whole time
+
+
+```r
+# This is a function
+c(2,3,4)
+```
+
+```
+## [1] 2 3 4
+```
+
+--
+
+
+```r
+# so is this
+mean(c(2,3,4))
+```
+
+```
+## [1] 3
+```
+
+--
+
+
+```r
+# and of course this 
+ggplot()
+```
+
+&lt;img src="L10_functions_and_iteration_files/figure-html/unnamed-chunk-4-1.png" width="25%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## We can define our own functions! 
+
+### Why would we want to do this? 
+
+.can-edit[
+- Good idea one
+- Good idea two
+]
+
+
+---
+
+class: middle
+
+# Case study: Scraping all Presidential inaugural speeches
+
+---
+
+## 🏁 Start with
+
+A [website with the inaugural addresses of the Presidents](https://avalon.law.yale.edu/subject_menus/inaug.asp)
+
+.pull-left[
+&lt;img src="img/main_inaug_page.png" width="110%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+&lt;img src="img/GW_address.png" width="110%" style="display: block; margin: auto;" /&gt;
+]
+
+
+
+---
+
+
+## End with 🛑
+
+
+
+
+```r
+glimpse(final_inaug_table)
+```
+
+```
+## Rows: 55
+## Columns: 6
+## $ President &lt;chr&gt; "George Washington", "George Washington", "Jo…
+## $ Term      &lt;chr&gt; "1st Term", "2nd Term", "1st Term", "1st Term…
+## $ Year      &lt;chr&gt; "1789", "1793", "1797", "1801", "1805", "1809…
+## $ link      &lt;chr&gt; "18th_century/wash1.asp", "18th_century/wash2…
+## $ full_link &lt;chr&gt; "https://avalon.law.yale.edu/18th_century/was…
+## $ speech    &lt;chr&gt; " Fellow-Citizens of the Senate and of the Ho…
+```
+
+
+
+---
+
+
+## Plan
+
+1. Scrape main page table to get `President`, `Term`, `Year`, and `Link` to find all data necessary to find speeches. 
+
+--
+
+2. Scrape one of the speeches of one of the Presidents to make sure it is possible. 
+
+--
+
+3. Develop a function to do (2) automatically given URL. 
+
+--
+
+4. Iterate over all links from (1) in our function.
+
+--
+
+5. Join the data.
+
+--
+
+6. 😄
+
+
+
+---
+
+
+## Scrape main page 
+
+&lt;img src="img/main_inaug_page.png" width="110%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Scrape main page
+
+### Extracting a table, a useful trick
+
+.small[
+
+```r
+library(rvest)
+# remember to just load this in once
+main_page &lt;- read_html("https://avalon.law.yale.edu/subject_menus/inaug.asp")
+```
+]
+
+--
+
+.small[
+
+```r
+tables &lt;- main_page %&gt;%
+  html_table() # extracts all tables it can find within the html page 
+
+tables
+```
+
+```
+## [[1]]
+## # A tibble: 1 x 2
+##   X1    X2   
+##   &lt;lgl&gt; &lt;lgl&gt;
+## 1 NA    NA   
+## 
+## [[2]]
+## # A tibble: 1 x 11
+##   X1     X2     X3     X4     X5    X6    X7    X8    X9    X10  
+##   &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 Avalo… Docum… Ancie… Medie… 15th… 16th… 17th… 18th… 19th… 20th…
+## # … with 1 more variable: X11 &lt;chr&gt;
+## 
+## [[3]]
+## # A tibble: 38 x 5
+##   X1                X2       X3       X4       X5      
+##   &lt;chr&gt;             &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;   
+## 1 President         1st Term 2nd Term 3rd Term 4th Term
+## 2 George Washington 1789     1793     &lt;NA&gt;     &lt;NA&gt;    
+## 3 John Adams        1797     &lt;NA&gt;     &lt;NA&gt;     &lt;NA&gt;    
+## 4 Thomas Jefferson  1801     1805     &lt;NA&gt;     &lt;NA&gt;    
+## 5 James Madison     1809     1813     &lt;NA&gt;     &lt;NA&gt;    
+## 6 James Monroe      1817     1821     &lt;NA&gt;     &lt;NA&gt;    
+## # … with 32 more rows
+## 
+## [[4]]
+## # A tibble: 1 x 1
+##   X1                  
+##   &lt;chr&gt;               
+## 1 Document Collections
+## 
+## [[5]]
+## # A tibble: 1 x 11
+##   X1     X2     X3     X4     X5    X6    X7    X8    X9    X10  
+##   &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 Avalo… Docum… Ancie… Medie… 15th… 16th… 17th… 18th… 19th… 20th…
+## # … with 1 more variable: X11 &lt;chr&gt;
+```
+]
+
+
+---
+
+
+## Scrape main page
+
+### Fixing up our table
+
+
+```r
+# our table is the third element of the table list
+inaug_table &lt;- tables[[3]]
+
+inaug_table
+```
+
+```
+## # A tibble: 38 x 5
+##   X1                X2       X3       X4       X5      
+##   &lt;chr&gt;             &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;   
+## 1 President         1st Term 2nd Term 3rd Term 4th Term
+## 2 George Washington 1789     1793     &lt;NA&gt;     &lt;NA&gt;    
+## 3 John Adams        1797     &lt;NA&gt;     &lt;NA&gt;     &lt;NA&gt;    
+## 4 Thomas Jefferson  1801     1805     &lt;NA&gt;     &lt;NA&gt;    
+## 5 James Madison     1809     1813     &lt;NA&gt;     &lt;NA&gt;    
+## 6 James Monroe      1817     1821     &lt;NA&gt;     &lt;NA&gt;    
+## # … with 32 more rows
+```
+
+
+---
+
+## Scrape main page
+
+### Fixing up our table
+
+
+
+```r
+# the colnames of the name are in the first row
+colnames(inaug_table) &lt;- inaug_table[1,]
+
+# now we can get rid of that first row
+inaug_table &lt;- inaug_table[-1,]
+
+inaug_table
+```
+
+```
+## # A tibble: 37 x 5
+##   President         `1st Term` `2nd Term` `3rd Term` `4th Term`
+##   &lt;chr&gt;             &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;     
+## 1 George Washington 1789       1793       &lt;NA&gt;       &lt;NA&gt;      
+## 2 John Adams        1797       &lt;NA&gt;       &lt;NA&gt;       &lt;NA&gt;      
+## 3 Thomas Jefferson  1801       1805       &lt;NA&gt;       &lt;NA&gt;      
+## 4 James Madison     1809       1813       &lt;NA&gt;       &lt;NA&gt;      
+## 5 James Monroe      1817       1821       &lt;NA&gt;       &lt;NA&gt;      
+## 6 John Quincy Adams 1825       &lt;NA&gt;       &lt;NA&gt;       &lt;NA&gt;      
+## # … with 31 more rows
+```
+
+
+---
+
+## Scrape main page
+
+### Fixing up our table
+
+Finally, we can make it `tidy`
+
+
+```r
+inaug_table &lt;- inaug_table %&gt;%
+  pivot_longer(cols = -President, # cols with data are all except President
+               names_to = "Term", # change names to "Term" 
+               values_to = "Year") %&gt;% # change values to "Year"
+  filter(!is.na(Year))
+
+inaug_table
+```
+
+```
+## # A tibble: 55 x 3
+##   President         Term     Year 
+##   &lt;chr&gt;             &lt;chr&gt;    &lt;chr&gt;
+## 1 George Washington 1st Term 1789 
+## 2 George Washington 2nd Term 1793 
+## 3 John Adams        1st Term 1797 
+## 4 Thomas Jefferson  1st Term 1801 
+## 5 Thomas Jefferson  2nd Term 1805 
+## 6 James Madison     1st Term 1809 
+## # … with 49 more rows
+```
+
+
+
+---
+
+## Scrape main page
+
+We need to extract the links underlying the table data
+
+&lt;img src="img/main_inaug_page.png" width="110%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Scrape main page 
+
+Using SelectorGadget (see previous lecture)
+
+&lt;img src="img/selector_date.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Scrape main page
+
+### `td a` contains all of the links and the years 
+
+
+```r
+td_a_elements &lt;- main_page %&gt;%
+  html_elements("td a")
+
+td_a_elements
+```
+
+```
+## {xml_nodeset (79)}
+##  [1] &lt;a href="../default.asp"&gt;Avalon Home&lt;/a&gt;
+##  [2] &lt;a href="../subject_menus/major.asp"&gt;Document&lt;br&gt; Collect ...
+##  [3] &lt;a href="../subject_menus/ancient.asp"&gt;Ancient &lt;br&gt;4000bc ...
+##  [4] &lt;a href="../subject_menus/medieval.asp"&gt;Medieval &lt;br&gt;400  ...
+##  [5] &lt;a href="../subject_menus/15th.asp"&gt;15&lt;sup&gt;th&lt;/sup&gt; Centu ...
+##  [6] &lt;a href="../subject_menus/16th.asp"&gt;16&lt;sup&gt;th&lt;/sup&gt; Centu ...
+##  [7] &lt;a href="../subject_menus/17th.asp"&gt;17&lt;sup&gt;th&lt;/sup&gt; Centu ...
+##  [8] &lt;a href="../subject_menus/18th.asp"&gt;18&lt;sup&gt;th&lt;/sup&gt; Centu ...
+##  [9] &lt;a href="../subject_menus/19th.asp"&gt;19&lt;sup&gt;th&lt;/sup&gt; Centu ...
+## [10] &lt;a href="../subject_menus/20th.asp"&gt;20&lt;sup&gt;th&lt;/sup&gt; Centu ...
+## [11] &lt;a href="../subject_menus/21st.asp"&gt;21&lt;sup&gt;st&lt;/sup&gt; Centu ...
+## [12] &lt;a href="../18th_century/wash1.asp"&gt;1789&lt;/a&gt;
+## [13] &lt;a href="../18th_century/wash2.asp"&gt;1793&lt;/a&gt;
+## [14] &lt;a href="../18th_century/adams.asp"&gt;1797&lt;/a&gt;
+## [15] &lt;a href="../19th_century/jefinau1.asp"&gt;1801&lt;/a&gt;
+## [16] &lt;a href="../19th_century/jefinau2.asp"&gt;1805&lt;/a&gt;
+## [17] &lt;a href="../19th_century/madison1.asp"&gt;1809&lt;/a&gt;
+## [18] &lt;a href="../19th_century/madison2.asp"&gt;1813&lt;/a&gt;
+## [19] &lt;a href="../19th_century/monroe1.asp"&gt;1817&lt;/a&gt;
+## [20] &lt;a href="../19th_century/monroe2.asp"&gt;1821&lt;/a&gt;
+## ...
+```
+
+
+---
+
+## Scrape main page
+
+### `td a` contains all of the links and the years 
+
+
+
+```r
+# get the dates
+dates &lt;- td_a_elements %&gt;%
+  html_text()
+# get the links
+refs &lt;- td_a_elements %&gt;%
+  html_attr("href")
+# make a table
+elements_tib &lt;- tibble(
+  year = dates, 
+  link = refs
+)
+
+elements_tib[12:15,]
+```
+
+```
+## # A tibble: 4 x 2
+##   year  link                        
+##   &lt;chr&gt; &lt;chr&gt;                       
+## 1 1789  ../18th_century/wash1.asp   
+## 2 1793  ../18th_century/wash2.asp   
+## 3 1797  ../18th_century/adams.asp   
+## 4 1801  ../19th_century/jefinau1.asp
+```
+
+---
+
+## Scrape main page
+
+### Joining it all together
+
+What should we join by? 
+
+.pull-left[
+
+```r
+inaug_table
+```
+
+```
+## # A tibble: 55 x 3
+##   President         Term     Year 
+##   &lt;chr&gt;             &lt;chr&gt;    &lt;chr&gt;
+## 1 George Washington 1st Term 1789 
+## 2 George Washington 2nd Term 1793 
+## 3 John Adams        1st Term 1797 
+## 4 Thomas Jefferson  1st Term 1801 
+## 5 Thomas Jefferson  2nd Term 1805 
+## 6 James Madison     1st Term 1809 
+## # … with 49 more rows
+```
+
+]
+
+
+.pull-right[
+
+```r
+elements_tib[12:15,]
+```
+
+```
+## # A tibble: 4 x 2
+##   year  link                        
+##   &lt;chr&gt; &lt;chr&gt;                       
+## 1 1789  ../18th_century/wash1.asp   
+## 2 1793  ../18th_century/wash2.asp   
+## 3 1797  ../18th_century/adams.asp   
+## 4 1801  ../19th_century/jefinau1.asp
+```
+]
+
+
+---
+
+## Scrape main page
+
+### Joining it all together
+
+
+```r
+inaug_table &lt;- left_join(x = inaug_table,
+                         y = elements_tib, 
+                         by = c("Year" = "year"))
+inaug_table
+```
+
+```
+## # A tibble: 55 x 4
+##   President         Term     Year  link                        
+##   &lt;chr&gt;             &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;                       
+## 1 George Washington 1st Term 1789  ../18th_century/wash1.asp   
+## 2 George Washington 2nd Term 1793  ../18th_century/wash2.asp   
+## 3 John Adams        1st Term 1797  ../18th_century/adams.asp   
+## 4 Thomas Jefferson  1st Term 1801  ../19th_century/jefinau1.asp
+## 5 Thomas Jefferson  2nd Term 1805  ../19th_century/jefinau2.asp
+## 6 James Madison     1st Term 1809  ../19th_century/madison1.asp
+## # … with 49 more rows
+```
+
+
+---
+
+## Scrape main page
+
+### One last thing... 
+
+We need to make the link a full link to the other sites
+
+
+```r
+inaug_table &lt;- inaug_table %&gt;%
+  mutate(link = str_remove(string = link, pattern = "../")) %&gt;%
+  mutate(full_link = 
+           paste("https://avalon.law.yale.edu/",link,sep=""))
+inaug_table
+```
+
+```
+## # A tibble: 55 x 5
+##   President    Term    Year  link        full_link               
+##   &lt;chr&gt;        &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;                   
+## 1 George Wash… 1st Te… 1789  18th_centu… https://avalon.law.yale…
+## 2 George Wash… 2nd Te… 1793  18th_centu… https://avalon.law.yale…
+## 3 John Adams   1st Te… 1797  18th_centu… https://avalon.law.yale…
+## 4 Thomas Jeff… 1st Te… 1801  19th_centu… https://avalon.law.yale…
+## 5 Thomas Jeff… 2nd Te… 1805  19th_centu… https://avalon.law.yale…
+## 6 James Madis… 1st Te… 1809  19th_centu… https://avalon.law.yale…
+## # … with 49 more rows
+```
+
+
+
+---
+
+## Plan
+
+1. ✅ Scrape main page table to get `President`, `Term`, `Year`, and `Link` to find all data necessary to find speeches. 
+
+2. Scrape one of the speeches of one of the Presidents to make sure it is possible. 
+
+3. Develop a function to do (2) automatically given URL. 
+
+4. Iterate over all links from (1) in our function.
+
+5. Join the data.
+
+6. 😄
+
+
+---
+
+## Grab a speech 
+
+
+```r
+inaug_address &lt;- read_html("https://avalon.law.yale.edu/18th_century/wash1.asp")
+```
+
+What is the html element that gives us the text of the address? 
+
+&lt;img src="img/speech_p.png" width="45%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+# Grab a speech 
+
+
+```r
+inaug_text &lt;- inaug_address %&gt;%
+  html_elements("p") %&gt;%
+  html_text()
+inaug_text
+```
+
+```
+## [1] " Fellow-Citizens of the Senate and of the House of Representatives: "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+## [2] "Among the vicissitudes incident to life no event could have filled me with greater anxieties than that of which the notification was transmitted by your order, and received on the 14th day of the present month. On the one hand, I was summoned by my Country, whose voice I can never hear but with veneration and love, from a retreat which I had chosen with the fondest predilection, and, in my flattering hopes, with an immutable decision, as the asylum of my declining years--a retreat which was rendered every day more necessary as well as more dear to me by the addition of habit to inclination, and of frequent interruptions in my health to the gradual waste committed on it by time. On the other hand, the magnitude and difficulty of the trust to which the voice of my country called me, being sufficient to awaken in the wisest and most experienced of her citizens a distrustful scrutiny into his qualifications, could not but overwhelm with despondence one who (inheriting inferior endowments from nature and unpracticed in the duties of civil administration) ought to be peculiarly conscious of his own deficiencies. In this conflict of emotions all I dare aver is that it has been my faithful study to collect my duty from a just appreciation of every circumstance by which it might be affected. All I dare hope is that if, in executing this task, I have been too much swayed by a grateful remembrance of former instances, or by an affectionate sensibility to this transcendent proof of the confidence of my fellow-citizens, and have thence too little consulted my incapacity as well as disinclination for the weighty and untried cares before me, my error will be palliated by the motives which mislead me, and its consequences be judged by my country with some share of the partiality in which they originated. "                                                                                                                                                                                                                                                                                                                                                                                           
+## [3] "Such being the impressions under which I have, in obedience to the public summons, repaired to the present station, it would be peculiarly improper to omit in this first official act my fervent supplications to that Almighty Being who rules over the universe, who presides in the councils of nations, and whose providential aids can supply every human defect, that His benediction may consecrate to the liberties and happiness of the people of the United States a Government instituted by themselves for these essential purposes, and may enable every instrument employed in its administration to execute with success the functions allotted to his charge. In tendering this homage to the Great Author of every public and private good, I assure myself that it expresses your sentiments not less than my own, nor those of my fellow- citizens at large less than either. No people can be bound to acknowledge and adore the Invisible Hand which conducts the affairs of men more than those of the United States. Every step by which they have advanced to the character of an independent nation seems to have been distinguished by some token of providential agency; and in the important revolution just accomplished in the system of their united government the tranquil deliberations and voluntary consent of so many distinct communities from which the event has resulted can not be compared with the means by which most governments have been established without some return of pious gratitude, along with an humble anticipation of the future blessings which the past seem to presage. These reflections, arising out of the present crisis, have forced themselves too strongly on my mind to be suppressed. You will join with me, I trust, in thinking that there are none under the influence of which the proceedings of a new and free government can more auspiciously commence. "                                                                                                                                                                                                                                                                                                                                              
+## [4] "By the article establishing the executive department it is made the duty of the President \"to recommend to your consideration such measures as he shall judge necessary and expedient.\" The circumstances under which I now meet you will acquit me from entering into that subject further than to refer to the great constitutional charter under which you are assembled, and which, in defining your powers, designates the objects to which your attention is to be given. It will be more consistent with those circumstances, and far more congenial with the feelings which actuate me, to substitute, in place of a recommendation of particular measures, the tribute that is due to the talents, the rectitude, and the patriotism which adorn the characters selected to devise and adopt them. In these honorable qualifications I behold the surest pledges that as on one side no local prejudices or attachments, no separate views nor party animosities, will misdirect the comprehensive and equal eye which ought to watch over this great assemblage of communities and interests, so, on another, that the foundation of our national policy will be laid in the pure and immutable principles of private morality, and the preeminence of free government be exemplified by all the attributes which can win the affections of its citizens and command the respect of the world. I dwell on this prospect with every satisfaction which an ardent love for my country can inspire, since there is no truth more thoroughly established than that there exists in the economy and course of nature an indissoluble union between virtue and happiness; between duty and advantage; between the genuine maxims of an honest and magnanimous policy and the solid rewards of public prosperity and felicity; since we ought to be no less persuaded that the propitious smiles of Heaven can never be expected on a nation that disregards the eternal rules of order and right which Heaven itself has ordained; and since the preservation of the sacred fire of liberty and the destiny of the republican model of government are justly considered, perhaps, as deeply, as finally, staked on the experiment entrusted to the hands of the American people. "
+## [5] "Besides the ordinary objects submitted to your care, it will remain with your judgment to decide how far an exercise of the occasional power delegated by the fifth article of the Constitution is rendered expedient at the present juncture by the nature of objections which have been urged against the system, or by the degree of inquietude which has given birth to them. Instead of undertaking particular recommendations on this subject, in which I could be guided by no lights derived from official opportunities, I shall again give way to my entire confidence in your discernment and pursuit of the public good; for I assure myself that whilst you carefully avoid every alteration which might endanger the benefits of an united and effective government, or which ought to await the future lessons of experience, a reverence for the characteristic rights of freemen and a regard for the public harmony will sufficiently influence your deliberations on the question how far the former can be impregnably fortified or the latter be safely and advantageously promoted. "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+## [6] "To the foregoing observations I have one to add, which will be most properly addressed to the House of Representatives. It concerns myself, and will therefore be as brief as possible. When I was first honored with a call into the service of my country, then on the eve of an arduous struggle for its liberties, the light in which I contemplated my duty required that I should renounce every pecuniary compensation. From this resolution I have in no instance departed; and being still under the impressions which produced it, I must decline as inapplicable to myself any share in the personal emoluments which may be indispensably included in a permanent provision for the executive department, and must accordingly pray that the pecuniary estimates for the station in which I am placed may during my continuance in it be limited to such actual expenditures as the public good may be thought to require. "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+## [7] "Having thus imparted to you my sentiments as they have been awakened by the occasion which brings us together, I shall take my present leave; but not without resorting once more to the benign Parent of the Human Race in humble supplication that, since He has been pleased to favor the American people with opportunities for deliberating in perfect tranquillity, and dispositions for deciding with unparalleled unanimity on a form of government for the security of their union and the advancement of their happiness, so His divine blessing may be equally conspicuous in the enlarged views, the temperate consultations, and the wise measures on which the success of this Government must depend. "
+```
+
+--
+
+
+```r
+inaug_text &lt;- paste(inaug_text, collapse = "")
+inaug_text
+```
+
+```
+## [1] " Fellow-Citizens of the Senate and of the House of Representatives: Among the vicissitudes incident to life no event could have filled me with greater anxieties than that of which the notification was transmitted by your order, and received on the 14th day of the present month. On the one hand, I was summoned by my Country, whose voice I can never hear but with veneration and love, from a retreat which I had chosen with the fondest predilection, and, in my flattering hopes, with an immutable decision, as the asylum of my declining years--a retreat which was rendered every day more necessary as well as more dear to me by the addition of habit to inclination, and of frequent interruptions in my health to the gradual waste committed on it by time. On the other hand, the magnitude and difficulty of the trust to which the voice of my country called me, being sufficient to awaken in the wisest and most experienced of her citizens a distrustful scrutiny into his qualifications, could not but overwhelm with despondence one who (inheriting inferior endowments from nature and unpracticed in the duties of civil administration) ought to be peculiarly conscious of his own deficiencies. In this conflict of emotions all I dare aver is that it has been my faithful study to collect my duty from a just appreciation of every circumstance by which it might be affected. All I dare hope is that if, in executing this task, I have been too much swayed by a grateful remembrance of former instances, or by an affectionate sensibility to this transcendent proof of the confidence of my fellow-citizens, and have thence too little consulted my incapacity as well as disinclination for the weighty and untried cares before me, my error will be palliated by the motives which mislead me, and its consequences be judged by my country with some share of the partiality in which they originated. Such being the impressions under which I have, in obedience to the public summons, repaired to the present station, it would be peculiarly improper to omit in this first official act my fervent supplications to that Almighty Being who rules over the universe, who presides in the councils of nations, and whose providential aids can supply every human defect, that His benediction may consecrate to the liberties and happiness of the people of the United States a Government instituted by themselves for these essential purposes, and may enable every instrument employed in its administration to execute with success the functions allotted to his charge. In tendering this homage to the Great Author of every public and private good, I assure myself that it expresses your sentiments not less than my own, nor those of my fellow- citizens at large less than either. No people can be bound to acknowledge and adore the Invisible Hand which conducts the affairs of men more than those of the United States. Every step by which they have advanced to the character of an independent nation seems to have been distinguished by some token of providential agency; and in the important revolution just accomplished in the system of their united government the tranquil deliberations and voluntary consent of so many distinct communities from which the event has resulted can not be compared with the means by which most governments have been established without some return of pious gratitude, along with an humble anticipation of the future blessings which the past seem to presage. These reflections, arising out of the present crisis, have forced themselves too strongly on my mind to be suppressed. You will join with me, I trust, in thinking that there are none under the influence of which the proceedings of a new and free government can more auspiciously commence. By the article establishing the executive department it is made the duty of the President \"to recommend to your consideration such measures as he shall judge necessary and expedient.\" The circumstances under which I now meet you will acquit me from entering into that subject further than to refer to the great constitutional charter under which you are assembled, and which, in defining your powers, designates the objects to which your attention is to be given. It will be more consistent with those circumstances, and far more congenial with the feelings which actuate me, to substitute, in place of a recommendation of particular measures, the tribute that is due to the talents, the rectitude, and the patriotism which adorn the characters selected to devise and adopt them. In these honorable qualifications I behold the surest pledges that as on one side no local prejudices or attachments, no separate views nor party animosities, will misdirect the comprehensive and equal eye which ought to watch over this great assemblage of communities and interests, so, on another, that the foundation of our national policy will be laid in the pure and immutable principles of private morality, and the preeminence of free government be exemplified by all the attributes which can win the affections of its citizens and command the respect of the world. I dwell on this prospect with every satisfaction which an ardent love for my country can inspire, since there is no truth more thoroughly established than that there exists in the economy and course of nature an indissoluble union between virtue and happiness; between duty and advantage; between the genuine maxims of an honest and magnanimous policy and the solid rewards of public prosperity and felicity; since we ought to be no less persuaded that the propitious smiles of Heaven can never be expected on a nation that disregards the eternal rules of order and right which Heaven itself has ordained; and since the preservation of the sacred fire of liberty and the destiny of the republican model of government are justly considered, perhaps, as deeply, as finally, staked on the experiment entrusted to the hands of the American people. Besides the ordinary objects submitted to your care, it will remain with your judgment to decide how far an exercise of the occasional power delegated by the fifth article of the Constitution is rendered expedient at the present juncture by the nature of objections which have been urged against the system, or by the degree of inquietude which has given birth to them. Instead of undertaking particular recommendations on this subject, in which I could be guided by no lights derived from official opportunities, I shall again give way to my entire confidence in your discernment and pursuit of the public good; for I assure myself that whilst you carefully avoid every alteration which might endanger the benefits of an united and effective government, or which ought to await the future lessons of experience, a reverence for the characteristic rights of freemen and a regard for the public harmony will sufficiently influence your deliberations on the question how far the former can be impregnably fortified or the latter be safely and advantageously promoted. To the foregoing observations I have one to add, which will be most properly addressed to the House of Representatives. It concerns myself, and will therefore be as brief as possible. When I was first honored with a call into the service of my country, then on the eve of an arduous struggle for its liberties, the light in which I contemplated my duty required that I should renounce every pecuniary compensation. From this resolution I have in no instance departed; and being still under the impressions which produced it, I must decline as inapplicable to myself any share in the personal emoluments which may be indispensably included in a permanent provision for the executive department, and must accordingly pray that the pecuniary estimates for the station in which I am placed may during my continuance in it be limited to such actual expenditures as the public good may be thought to require. Having thus imparted to you my sentiments as they have been awakened by the occasion which brings us together, I shall take my present leave; but not without resorting once more to the benign Parent of the Human Race in humble supplication that, since He has been pleased to favor the American people with opportunities for deliberating in perfect tranquillity, and dispositions for deciding with unparalleled unanimity on a form of government for the security of their union and the advancement of their happiness, so His divine blessing may be equally conspicuous in the enlarged views, the temperate consultations, and the wise measures on which the success of this Government must depend. "
+```
+
+---
+
+## Plan
+
+1. ✅ Scrape main page table to get `President`, `Term`, `Year`, and `Link` to find all data necessary to find speeches. 
+
+2. ✅ Scrape one of the speeches of one of the Presidents to make sure it is possible. 
+
+3. Develop a function to do (2) automatically given URL. 
+
+4. Iterate over all links from (1) in our function.
+
+5. Join the data.
+
+6. 😄
+
+
+
+---
+
+## Wait... 
+
+How many times do I need to copy and paste all this code?
+
+&lt;img src="img/main_inaug_page.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+--
+
+Ugh... 
+
+
+
+---
+
+# Functions
+
+.question[
+When should I create my own function? 
+]
+
+--
+
+When you’ve copied and pasted a block of code more than twice.
+
+---
+
+## Why functions?
+
+- Automate common tasks in a more powerful and general way than copy-and-pasting:
+- Give your function an evocative name that makes your code easier to understand
+- As requirements change, only need to update code in one place, instead of many
+- Eliminate chance of making incidental mistakes when you copy and paste (i.e. updating a variable name in one place, but not in another)
+
+--
+
+- Down the line: Improve your reach as a data scientist by writing functions (and packages!) that others use
+
+---
+
+
+.question[
+Assuming that the page structure is the same for each speech page, how many "things" do you need to know for each speech page to scrape the data we want from it? 
+]
+
+
+
+```r
+inaug_address &lt;- read_html("https://avalon.law.yale.edu/18th_century/wash1.asp")
+
+inaug_text &lt;- inaug_address %&gt;%
+  html_elements("p") %&gt;%
+  html_text()
+
+inaug_text &lt;- paste(inaug_text, collapse = "")
+```
+
+
+---
+
+## Turning your code into a function
+
+
+- Pick a short but informative **name**, preferably a verb.
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+
+```r
+scrape_speech &lt;- 
+```
+
+
+---
+
+
+## Turn your code into a function
+
+- Pick a short but informative **name**, preferably a verb.
+- List inputs, or **arguments**, to the function inside `function`. If we had more the call would look like `function(x, y, z)`.
+
+&lt;br&gt;
+
+
+```r
+scrape_speech &lt;- function(x){
+
+
+
+
+
+}  
+```
+
+---
+
+## Turn your code into a function
+
+- Pick a short but informative **name**, preferably a verb.
+- List inputs, or **arguments**, to the function inside `function`. If we had more the call would look like `function(x, y, z)`.
+- Place the **code** you have developed in body of the function, a `{` block that immediately follows `function(...)`.
+
+
+```r
+scrape_speech &lt;- function(url){
+  
+  # code we developed earlier to scrape info 
+  # on single art piece goes here
+  
+}
+```
+
+
+---
+
+## Turn your code into a function
+
+
+```r
+scrape_speech &lt;- function(url){
+  
+* inaug_address &lt;- read_html(url)
+  
+  inaug_text &lt;- inaug_address %&gt;%
+    html_elements("p") %&gt;%
+    html_text()
+  
+  inaug_text &lt;- paste(inaug_text, collapse = "")
+  
+* return(inaug_text)
+  
+}
+```
+
+Functions are their own environments... only returns what you tell it to! 
+
+
+
+---
+
+## Testing our function
+
+
+```r
+scrape_speech(url = "https://avalon.law.yale.edu/18th_century/wash1.asp")
+```
+
+```
+## [1] " Fellow-Citizens of the Senate and of the House of Representatives: Among the vicissitudes incident to life no event could have filled me with greater anxieties than that of which the notification was transmitted by your order, and received on the 14th day of the present month. On the one hand, I was summoned by my Country, whose voice I can never hear but with veneration and love, from a retreat which I had chosen with the fondest predilection, and, in my flattering hopes, with an immutable decision, as the asylum of my declining years--a retreat which was rendered every day more necessary as well as more dear to me by the addition of habit to inclination, and of frequent interruptions in my health to the gradual waste committed on it by time. On the other hand, the magnitude and difficulty of the trust to which the voice of my country called me, being sufficient to awaken in the wisest and most experienced of her citizens a distrustful scrutiny into his qualifications, could not but overwhelm with despondence one who (inheriting inferior endowments from nature and unpracticed in the duties of civil administration) ought to be peculiarly conscious of his own deficiencies. In this conflict of emotions all I dare aver is that it has been my faithful study to collect my duty from a just appreciation of every circumstance by which it might be affected. All I dare hope is that if, in executing this task, I have been too much swayed by a grateful remembrance of former instances, or by an affectionate sensibility to this transcendent proof of the confidence of my fellow-citizens, and have thence too little consulted my incapacity as well as disinclination for the weighty and untried cares before me, my error will be palliated by the motives which mislead me, and its consequences be judged by my country with some share of the partiality in which they originated. Such being the impressions under which I have, in obedience to the public summons, repaired to the present station, it would be peculiarly improper to omit in this first official act my fervent supplications to that Almighty Being who rules over the universe, who presides in the councils of nations, and whose providential aids can supply every human defect, that His benediction may consecrate to the liberties and happiness of the people of the United States a Government instituted by themselves for these essential purposes, and may enable every instrument employed in its administration to execute with success the functions allotted to his charge. In tendering this homage to the Great Author of every public and private good, I assure myself that it expresses your sentiments not less than my own, nor those of my fellow- citizens at large less than either. No people can be bound to acknowledge and adore the Invisible Hand which conducts the affairs of men more than those of the United States. Every step by which they have advanced to the character of an independent nation seems to have been distinguished by some token of providential agency; and in the important revolution just accomplished in the system of their united government the tranquil deliberations and voluntary consent of so many distinct communities from which the event has resulted can not be compared with the means by which most governments have been established without some return of pious gratitude, along with an humble anticipation of the future blessings which the past seem to presage. These reflections, arising out of the present crisis, have forced themselves too strongly on my mind to be suppressed. You will join with me, I trust, in thinking that there are none under the influence of which the proceedings of a new and free government can more auspiciously commence. By the article establishing the executive department it is made the duty of the President \"to recommend to your consideration such measures as he shall judge necessary and expedient.\" The circumstances under which I now meet you will acquit me from entering into that subject further than to refer to the great constitutional charter under which you are assembled, and which, in defining your powers, designates the objects to which your attention is to be given. It will be more consistent with those circumstances, and far more congenial with the feelings which actuate me, to substitute, in place of a recommendation of particular measures, the tribute that is due to the talents, the rectitude, and the patriotism which adorn the characters selected to devise and adopt them. In these honorable qualifications I behold the surest pledges that as on one side no local prejudices or attachments, no separate views nor party animosities, will misdirect the comprehensive and equal eye which ought to watch over this great assemblage of communities and interests, so, on another, that the foundation of our national policy will be laid in the pure and immutable principles of private morality, and the preeminence of free government be exemplified by all the attributes which can win the affections of its citizens and command the respect of the world. I dwell on this prospect with every satisfaction which an ardent love for my country can inspire, since there is no truth more thoroughly established than that there exists in the economy and course of nature an indissoluble union between virtue and happiness; between duty and advantage; between the genuine maxims of an honest and magnanimous policy and the solid rewards of public prosperity and felicity; since we ought to be no less persuaded that the propitious smiles of Heaven can never be expected on a nation that disregards the eternal rules of order and right which Heaven itself has ordained; and since the preservation of the sacred fire of liberty and the destiny of the republican model of government are justly considered, perhaps, as deeply, as finally, staked on the experiment entrusted to the hands of the American people. Besides the ordinary objects submitted to your care, it will remain with your judgment to decide how far an exercise of the occasional power delegated by the fifth article of the Constitution is rendered expedient at the present juncture by the nature of objections which have been urged against the system, or by the degree of inquietude which has given birth to them. Instead of undertaking particular recommendations on this subject, in which I could be guided by no lights derived from official opportunities, I shall again give way to my entire confidence in your discernment and pursuit of the public good; for I assure myself that whilst you carefully avoid every alteration which might endanger the benefits of an united and effective government, or which ought to await the future lessons of experience, a reverence for the characteristic rights of freemen and a regard for the public harmony will sufficiently influence your deliberations on the question how far the former can be impregnably fortified or the latter be safely and advantageously promoted. To the foregoing observations I have one to add, which will be most properly addressed to the House of Representatives. It concerns myself, and will therefore be as brief as possible. When I was first honored with a call into the service of my country, then on the eve of an arduous struggle for its liberties, the light in which I contemplated my duty required that I should renounce every pecuniary compensation. From this resolution I have in no instance departed; and being still under the impressions which produced it, I must decline as inapplicable to myself any share in the personal emoluments which may be indispensably included in a permanent provision for the executive department, and must accordingly pray that the pecuniary estimates for the station in which I am placed may during my continuance in it be limited to such actual expenditures as the public good may be thought to require. Having thus imparted to you my sentiments as they have been awakened by the occasion which brings us together, I shall take my present leave; but not without resorting once more to the benign Parent of the Human Race in humble supplication that, since He has been pleased to favor the American people with opportunities for deliberating in perfect tranquillity, and dispositions for deciding with unparalleled unanimity on a form of government for the security of their union and the advancement of their happiness, so His divine blessing may be equally conspicuous in the enlarged views, the temperate consultations, and the wise measures on which the success of this Government must depend. "
+```
+
+```r
+Sys.sleep(1) # sleep for one second
+scrape_speech(url = "https://avalon.law.yale.edu/20th_century/kennedy.asp")
+```
+
+```
+## [1] "Vice President Johnson, Mr. Speaker, Mr. Chief Justice, President Eisenhower, Vice President Nixon, President Truman, reverend clergy, fellow citizens, we observe today not a victory of party, but a celebration of freedom--symbolizing an end, as well as a beginning--signifying renewal, as well as change. For I have sworn before you and Almighty God the same solemn oath our forebears prescribed nearly a century and three quarters ago.   The world is very different now. For man holds in his mortal hands the power to abolish all forms of human poverty and all forms of human life. And yet the same revolutionary beliefs for which our forebears fought are still at issue around the globe--the belief that the rights of man come not from the generosity of the state, but from the hand of God.   We dare not forget today that we are the heirs of that first revolution. Let the word go forth from this time and place, to friend and foe alike, that the torch has been passed to a new generation of Americans--born in this century, tempered by war, disciplined by a hard and bitter peace, proud of our ancient heritage--and unwilling to witness or permit the slow undoing of those human rights to which this Nation has always been committed, and to which we are committed today at home and around the world.   Let every nation know, whether it wishes us well or ill, that we shall pay any price, bear any burden, meet any hardship, support any friend, oppose any foe, in order to assure the survival and the success of liberty.   This much we pledge--and more.   To those old allies whose cultural and spiritual origins we share, we pledge the loyalty of faithful friends. United, there is little we cannot do in a host of cooperative ventures. Divided, there is little we can do--for we dare not meet a powerful challenge at odds and split asunder.   To those new States whom we welcome to the ranks of the free, we pledge our word that one form of colonial control shall not have passed away merely to be replaced by a far more iron tyranny. We shall not always expect to find them supporting our view. But we shall always hope to find them strongly supporting their own freedom--and to remember that, in the past, those who foolishly sought power by riding the back of the tiger ended up inside.   To those peoples in the huts and villages across the globe struggling to break the bonds of mass misery, we pledge our best efforts to help them help themselves, for whatever period is required--not because the Communists may be doing it, not because we seek their votes, but because it is right. If a free society cannot help the many who are poor, it cannot save the few who are rich.   To our sister republics south of our border, we offer a special pledge--to convert our good words into good deeds--in a new alliance for progress--to assist free men and free governments in casting off the chains of poverty. But this peaceful revolution of hope cannot become the prey of hostile powers. Let all our neighbors know that we shall join with them to oppose aggression or subversion anywhere in the Americas. And let every other power know that this Hemisphere intends to remain the master of its own house.   To that world assembly of sovereign states, the United Nations, our last best hope in an age where the instruments of war have far outpaced the instruments of peace, we renew our pledge of support--to prevent it from becoming merely a forum for invective--to strengthen its shield of the new and the weak--and to enlarge the area in which its writ may run.   Finally, to those nations who would make themselves our adversary, we offer not a pledge but a request: that both sides begin anew the quest for peace, before the dark powers of destruction unleashed by science engulf all humanity in planned or accidental self-destruction.   We dare not tempt them with weakness. For only when our arms are sufficient beyond doubt can we be certain beyond doubt that they will never be employed.   But neither can two great and powerful groups of nations take comfort from our present course--both sides overburdened by the cost of modern weapons, both rightly alarmed by the steady spread of the deadly atom, yet both racing to alter that uncertain balance of terror that stays the hand of mankind's final war.   So let us begin anew--remembering on both sides that civility is not a sign of weakness, and sincerity is always subject to proof. Let us never negotiate out of fear. But let us never fear to negotiate.   Let both sides explore what problems unite us instead of belaboring those problems which divide us.   Let both sides, for the first time, formulate serious and precise proposals for the inspection and control of arms--and bring the absolute power to destroy other nations under the absolute control of all nations.   Let both sides seek to invoke the wonders of science instead of its terrors. Together let us explore the stars, conquer the deserts, eradicate disease, tap the ocean depths, and encourage the arts and commerce.   Let both sides unite to heed in all corners of the earth the command of Isaiah--to \"undo the heavy burdens ... and to let the oppressed go free.\"   And if a beachhead of cooperation may push back the jungle of suspicion, let both sides join in creating a new endeavor, not a new balance of power, but a new world of law, where the strong are just and the weak secure and the peace preserved.   All this will not be finished in the first 100 days. Nor will it be finished in the first 1,000 days, nor in the life of this Administration, nor even perhaps in our lifetime on this planet. But let us begin.   In your hands, my fellow citizens, more than in mine, will rest the final success or failure of our course. Since this country was founded, each generation of Americans has been summoned to give testimony to its national loyalty. The graves of young Americans who answered the call to service surround the globe.   Now the trumpet summons us again--not as a call to bear arms, though arms we need; not as a call to battle, though embattled we are--but a call to bear the burden of a long twilight struggle, year in and year out, \"rejoicing in hope, patient in tribulation\"--a struggle against the common enemies of man: tyranny, poverty, disease, and war itself.   Can we forge against these enemies a grand and global alliance, North and South, East and West, that can assure a more fruitful life for all mankind? Will you join in that historic effort?   In the long history of the world, only a few generations have been granted the role of defending freedom in its hour of maximum danger. I do not shrink from this responsibility--I welcome it. I do not believe that any of us would exchange places with any other people or any other generation. The energy, the faith, the devotion which we bring to this endeavor will light our country and all who serve it--and the glow from that fire can truly light the world.   And so, my fellow Americans: ask not what your country can do for you--ask what you can do for your country.   My fellow citizens of the world: ask not what America will do for you, but what together we can do for the freedom of man.   Finally, whether you are citizens of America or citizens of the world, ask of us the same high standards of strength and sacrifice which we ask of you. With a good conscience our only sure reward, with history the final judge of our deeds, let us go forth to lead the land we love, asking His blessing and His help, but knowing that here on earth God's work must truly be our own.  "
+```
+
+---
+
+
+
+## Plan
+
+1. ✅ Scrape main page table to get `President`, `Term`, `Year`, and `Link` to find all data necessary to find speeches. 
+
+2. ✅ Scrape one of the speeches of one of the Presidents to make sure it is possible. 
+
+3. ✅ Develop a function to do (2) automatically given URL. 
+
+4. Iterate over all links from (1) in our function.
+
+5. Join the data.
+
+6. 😄
+
+
+---
+
+
+class: middle
+
+# Brief aside: Writing functions
+
+---
+
+## What goes in / what comes out?
+
+.pull-left-wide[
+- They take input(s) defined in the function definition
+
+
+```r
+function([inputs separated by commas]){
+  # what to do with those inputs
+}
+```
+
+- By default they return the last value computed in the function
+
+
+```r
+scrape_page &lt;- function(x){
+  # do bunch of stuff with the input...
+  
+  # return a tibble
+  tibble(...)
+}
+```
+
+- You can define more outputs to be returned in a list as well as nice print methods (but we won't go there for now...)
+]
+
+---
+
+.question[
+What is going on here?
+]
+
+
+```r
+add_2 &lt;- function(x){
+  x + 2
+  1000
+}
+```
+
+
+```r
+add_2(3)
+```
+
+```
+## [1] 1000
+```
+
+```r
+add_2(10)
+```
+
+```
+## [1] 1000
+```
+
+---
+
+## Naming functions
+
+&gt; "There are only two hard things in Computer Science: cache invalidation and naming things." - Phil Karlton
+
+---
+
+## Naming functions
+
+- Names should be short but clearly evoke what the function does
+
+--
+- Names should be verbs, not nouns
+
+--
+- Multi-word names should be separated by underscores (`snake_case` as opposed to `camelCase`)
+
+--
+- A family of functions should be named similarly (`scrape_page()`, `scrape_speech()` OR `str_remove()`, `str_replace()` etc.)
+
+--
+- Avoid overwriting existing (especially widely used) functions
+
+
+```r
+# NEVER DO THIS
+mean &lt;- function(x){ 
+  x * 3 
+  }
+```
+
+
+---
+
+class: middle
+
+# Iteration
+
+---
+
+
+## Define the task
+
+
+- Goal: Scrape all speeches from all Presidents.
+- Like this: 
+
+
+```r
+speech1 &lt;- scrape_speech(url[1])
+speech2 &lt;- scrape_speech(url[2])
+speech3 &lt;- scrape_speech(url[3])
+...
+speech55 &lt;- scrape_speech(url[55])
+```
+
+--
+
+- There must be a better way! 
+
+
+---
+
+background-image: url("img/monster_for_loop.png")
+background-size: contain
+
+---
+
+
+## Using a for loop
+
+
+
+```r
+inaug_table$speech &lt;- NA # create an empty variable to hold the speeches
+
+seq_along(inaug_table$full_link) # creates a sequence of numbers for the length of the object
+```
+
+```
+##  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+## [21] 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40
+## [41] 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55
+```
+
+--
+
+
+```r
+for(speech_ind in seq_along(inaug_table$full_link)){
+  inaug_table$speech[speech_ind] &lt;- scrape_speech(url = inaug_table$full_link[speech_ind])
+  message(paste("Got speech from",
+                inaug_table$President[speech_ind],
+                inaug_table$Term[speech_ind])) # tell me where you are
+  Sys.sleep(runif(1)+3) # sleep a random bit
+}
+```
+
+--
+What could go wrong? 
+
+
+---
+
+
+&lt;img src="img/error_before_catch.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+--
+
+
+&lt;img src="img/MVB.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+
+## Catching errors
+
+Not going to dive into this, but be aware of it in case it is useful, and you can search online for how to implement given your specific solution. 
+
+
+```r
+scrape_speech&lt;- function(url){
+  
+  
+* inaug_address &lt;- tryCatch(
+    read_html(url),
+    error = function(cond){NA}) # if error, return NA
+  
+  # if there was the error, return NA from the main function
+  if(is.na(page)){
+    return(NA)
+  }
+  
+  inaug_text &lt;- inaug_address %&gt;%
+    html_elements("p") %&gt;%
+    html_text()
+  
+  inaug_text &lt;- paste(inaug_text, collapse = "")
+  
+  # if no error, return the text as usual. 
+  return(inaug_text) 
+  
+}
+```
+
+
+
+---
+
+
+```r
+for(speech_ind in seq_along(inaug_table$full_link)){
+  inaug_table$speech[speech_ind] &lt;- inaug_grab(inaug_url = inaug_table$full_link[speech_ind])
+  message(paste("Got speech from",inaug_table$President[speech_ind],inaug_table$Term[speech_ind]))
+  Sys.sleep(runif(1)+3)
+}
+```
+
+
+
+
+--
+
+
+```r
+inaug_table
+```
+
+```
+## # A tibble: 55 x 6
+##   President   Term   Year  link    full_link       speech        
+##   &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;           &lt;chr&gt;         
+## 1 George Was… 1st T… 1789  18th_c… https://avalon… " Fellow-Citi…
+## 2 George Was… 2nd T… 1793  18th_c… https://avalon… "Fellow Citiz…
+## 3 John Adams  1st T… 1797  18th_c… https://avalon… "When it was …
+## 4 Thomas Jef… 1st T… 1801  19th_c… https://avalon… " Called upon…
+## 5 Thomas Jef… 2nd T… 1805  19th_c… https://avalon… " Proceeding,…
+## 6 James Madi… 1st T… 1809  19th_c… https://avalon… "March 4, 180…
+## # … with 49 more rows
+```
+
+
+
+---
+
+## Plan
+
+1. ✅ Scrape main page table to get `President`, `Term`, `Year`, and `Link` to find all data necessary to find speeches. 
+
+2. ✅ Scrape one of the speeches of one of the Presidents to make sure it is possible. 
+
+3. ✅ Develop a function to do (2) automatically given URL. 
+
+4. ✅ Iterate over all links from (1) in our function.
+
+5. ✅ Join the data.
+
+6. 😄
+
+
+---
+
+
+```r
+library(tidytext)
+data(stop_words)
+
+inaug_table %&gt;%
+  select(President,Term,speech) %&gt;%
+  unnest_tokens(word, speech) %&gt;%
+  anti_join(stop_words) %&gt;%
+  group_by(President, Term) %&gt;%
+  summarize(total_words = n()) %&gt;%
+  arrange(desc(total_words)) -&gt; 
+  inaug_length
+
+inaug_length
+```
+
+```
+## # A tibble: 55 x 3
+## # Groups:   President [37]
+##   President              Term     total_words
+##   &lt;chr&gt;                  &lt;chr&gt;          &lt;int&gt;
+## 1 William Henry Harrison 1st Term        2943
+## 2 William Howard Taft    1st Term        2047
+## 3 James Polk             1st Term        1847
+## 4 Benjamin Harrison      1st Term        1673
+## 5 James Monroe           2nd Term        1577
+## 6 William McKinley       1st Term        1496
+## # … with 49 more rows
+```
+
+
+---
+
+.small[
+
+```r
+inaug_length &lt;- inaug_length %&gt;%
+  filter(total_words &gt; 1) 
+
+inaug_length$President &lt;- factor(inaug_length$President, levels=rev(unique(inaug_length$President)))
+
+ggplot(inaug_length) + 
+  geom_col(aes(y=President, x=total_words, fill=Term), position="dodge") + 
+  theme_minimal()
+```
+
+&lt;img src="L10_functions_and_iteration_files/figure-html/unnamed-chunk-49-1.png" width="72%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+
+
+```r
+inaug_table$speech[2]
+```
+
+
+[1] "Fellow Citizens:  I am again called upon by the voice of my country to execute the functions of its Chief Magistrate. When the occasion proper for it shall arrive, I shall endeavor to express the high sense I entertain of this distinguished honor, and of the confidence which has been reposed in me by the people of united America.  Previous to the execution of any official act of the President the Constitution requires an oath of office. This oath I am now about to take, and in your presence: That if it shall be found during my administration of the Government I have in any instance violated willingly or knowingly the injunctions thereof, I may (besides incurring constitutional punishment) be subject to the upbraidings of all who are now witnesses of the present solemn ceremony. "
+
+
+---
+
+# Attributions
+
+Some of the material in this slide deck was inspired by and/or partially adapted from several open-source data science resources, including
+
+- The [datasciencebox](https://github.com/rstudio-education/datascience-box) by Mine Çetinkaya-Rundel [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 
+- The [R for Data Science](https://r4ds.had.co.nz/) textbook by Hadley Wickham &amp; Garrett Grolemund [CC BY-NC-ND 3.0 US](https://creativecommons.org/licenses/by-nc-nd/3.0/us/) 
+- Artwork by @allison_horst [CC BY-SA 4.1](https://creativecommons.org/licenses/by-sa/4.0/) 
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightLines": true,
+"highlightStyle": "solarized-light",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

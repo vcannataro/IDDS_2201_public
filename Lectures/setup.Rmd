@@ -38,6 +38,7 @@ xaringanExtra::use_panelset()
 xaringanExtra::use_search(show_icon = T, auto_search = F)
 xaringanExtra::use_clipboard()
 xaringanExtra::use_tile_view()
+xaringanExtra::use_editable()
 
 # output number of lines
 hook_output <- knitr::knit_hooks$get("output")
