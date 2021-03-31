@@ -19,7 +19,7 @@
     <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
     <link href="libs/tile-view/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view/tile-view.js"></script>
-    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"x2b3011a5e6e484f9e879fc1bd0fb901","expires":14}</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"ca87e2a4c7484a8089da4a8594b11704","expires":14}</script>
     <script src="libs/himalaya/himalaya.js"></script>
     <script src="libs/js-cookie/js.cookie.js"></script>
     <link href="libs/editable/editable.css" rel="stylesheet" />
@@ -1020,7 +1020,7 @@ scrape_speech&lt;- function(url){
     error = function(cond){NA}) # if error, return NA
   
   # if there was the error, return NA from the main function
-  if(is.na(page)){
+  if(is.na(inaug_address)){
     return(NA)
   }
   
@@ -1043,7 +1043,7 @@ scrape_speech&lt;- function(url){
 
 ```r
 for(speech_ind in seq_along(inaug_table$full_link)){
-  inaug_table$speech[speech_ind] &lt;- inaug_grab(inaug_url = inaug_table$full_link[speech_ind])
+  inaug_table$speech[speech_ind] &lt;- scrape_speech(url = inaug_table$full_link[speech_ind])
   message(paste("Got speech from",inaug_table$President[speech_ind],inaug_table$Term[speech_ind]))
   Sys.sleep(runif(1)+3)
 }
@@ -1156,6 +1156,245 @@ inaug_table$speech[2]
 
 
 ---
+
+## Using the `map` family of functions
+
+
+```r
+# wow much simpler... 
+all_speeches &lt;- map(inaug_table$full_link, scrape_speech)
+```
+
+
+
+
+
+
+
+
+
+
+
+```r
+glimpse(all_speeches)
+```
+
+```
+## List of 55
+##  $ : chr " Fellow-Citizens of the Senate and of the House of Representatives: Among the vicissitudes incident to life no "| __truncated__
+##  $ : chr "Fellow Citizens: I am again called upon by the voice of my country to execute the functions of its Chief Magist"| __truncated__
+##  $ : chr "When it was first perceived, in early times, that no middle course for America remained between unlimited submi"| __truncated__
+##  $ : chr " Called upon to undertake the duties of the first executive office of our country, I avail myself of the presen"| __truncated__
+##  $ : chr " Proceeding, fellow citizens, to that qualification which the constitution requires, before my entrance on the "| __truncated__
+##  $ : chr "March 4, 1809Unwilling to depart from examples of the most revered authority, I avail myself of the occasion no"| __truncated__
+##  $ : chr "March 4, 1813About to add the solemnity of an oath to the obligations imposed by a second call to the station i"| __truncated__
+##  $ : chr "I should be destitute of feeling if I was not deeply affected by the strong proof which my fellow-citizens have"| __truncated__
+##  $ : chr "I shall not attempt to describe the grateful emotions which the new and very distinguished proof of the confide"| __truncated__
+##  $ : chr "In compliance with an usage coeval with the existence of our Federal Constitution, and sanctioned by the exampl"| __truncated__
+##  $ : chr " Fellow-Citizens: About to undertake the arduous duties that I have been appointed to perform by the choice of "| __truncated__
+##  $ : chr "Fellow-Citizens: The will of the American people, expressed through their unsolicited suffrages, calls me befor"| __truncated__
+##  $ : logi NA
+##  $ : chr "Called from a retirement which I had supposed was to continue for the residue of my life to fill the chief exec"| __truncated__
+##  $ : chr "Fellow-Citizens:  Without solicitation on my part, I have been chosen by the free and voluntary suffrages of my"| __truncated__
+##  $ : chr "Elected by the American people to the highest office known to our laws, I appear here to take the oath prescrib"| __truncated__
+##  $ : chr "My Countrymen: It a relief to feel that no heart but my own can know the personal regret and bitter sorrow over"| __truncated__
+##  $ : logi NA
+##  $ : chr "In compliance with a custom as old as the Government itself, I appear before you to address you briefly and to "| __truncated__
+##  $ : chr " At this second appearing to take the oath of the Presidential office there is less occasion for an extended ad"| __truncated__
+##  $ : chr "Citizens of the United States:   Your suffrages having elected me to the office of President of the United Stat"| __truncated__
+##  $ : chr "Fellow-Citizens:   Under Providence I have been called a second time to act as Executive over this great nation"| __truncated__
+##  $ : chr "Fellow-Citizens:   We have assembled to repeat the public ceremonial, begun by Washington, observed by all my p"| __truncated__
+##  $ : logi NA
+##  $ : chr "Fellow-Citizens:   In the presence of this vast assemblage of my countrymen I am about to supplement and seal b"| __truncated__
+##  $ : chr "My Fellow-Citizens:   In obedience of the mandate of my countrymen I am about to dedicate myself to their servi"| __truncated__
+##  $ : chr "Fellow-Citizens:   There is no constitutional or legal requirement that the President shall take the oath of of"| __truncated__
+##  $ : chr "Fellow-Citizens:   In obedience to the will of the people, and in their presence, by the authority vested in me"| __truncated__
+##  $ : chr "My Fellow-Citizens:   When we assembled here on the 4th of March, 1897, there was great anxiety with regard to "| __truncated__
+##  $ : chr "My fellow-citizens, no people on earth have more cause to be thankful than ours, and this is said reverently, i"| __truncated__
+##  $ : chr "My Fellow-Citizens:   Anyone who has taken the oath I have just taken must feel a heavy weight of responsibilit"| __truncated__
+##  $ : chr " There has been a change of government. It began two years ago, when the House of Representatives became Democr"| __truncated__
+##  $ : chr " My Fellow Citizens:   The four years which have elapsed since last I stood in this place have been crowded wit"| __truncated__
+##  $ : chr " My Countrymen:   When one surveys the world about him after the great storm, noting the marks of destruction a"| __truncated__
+##  $ : logi NA
+##  $ : chr "My Countrymen:   This occasion is not alone the administration of the most sacred oath which can be assumed by "| __truncated__
+##  $ : chr "I am certain that my fellow Americans expect that on my induction into the Presidency I will address them with "| __truncated__
+##  $ : chr "When four years ago we met to inaugurate a President, the Republic, single-minded in anxiety, stood in spirit h"| __truncated__
+##  $ : chr "On each national day of inauguration since 1789, the people have renewed their sense of dedication to the Unite"| __truncated__
+##  $ : chr "Mr. Chief Justice, Mr. Vice President, my friends, you will understand and, I believe, agree with my wish that "| __truncated__
+##  $ : chr "Mr. Vice President, Mr. Chief Justice, and fellow citizens, I accept with humility the honor which the American"| __truncated__
+##  $ : chr "My friends, before I begin the expression of those thoughts that I deem appropriate to this moment, would you p"| __truncated__
+##  $ : chr "THE PRICE OF PEACE   Mr. Chairman, Mr. Vice President, Mr. Chief Justice, Mr. Speaker, members of my family and"| __truncated__
+##  $ : chr "Vice President Johnson, Mr. Speaker, Mr. Chief Justice, President Eisenhower, Vice President Nixon, President T"| __truncated__
+##  $ : chr "My fellow countrymen, on this occasion, the oath I have taken before you and before God is not mine alone, but "| __truncated__
+##  $ : chr "Senator Dirksen, Mr. Chief Justice, Mr. Vice President, President Johnson, Vice President Humphrey, my fellow A"| __truncated__
+##  $ : chr "Mr. Vice President, Mr. Speaker, Mr. Chief Justice, Senator Cook, Mrs. Eisenhower, and my fellow citizens of th"| __truncated__
+##  $ : chr "For myself and for our Nation, I want to thank my predecessor for all he has done to heal our land.   In this o"| __truncated__
+##  $ : chr "Senator Hatfield, Mr. Chief Justice, Mr. President, Vice President Bush, Vice President Mondale, Senator Baker,"| __truncated__
+##  $ : chr "Senator Mathias, Chief Justice Burger, Vice President Bush, Speaker O'Neill, Senator Dole, Reverend Clergy, mem"| __truncated__
+##  $ : chr "Mr. Chief Justice, Mr. President, Vice President Quayle, Senator Mitchell, Speaker Wright, Senator Dole, Congre"| __truncated__
+##  $ : chr "My fellow citizens : Today we celebrate the mystery of American renewal. This ceremony is held in the depth of "| __truncated__
+##  $ : chr "My fellow citizens : At this last presidential inauguration of the 20th century, let us lift our eyes toward th"| __truncated__
+##  $ : chr "President Clinton, distinguished guests and my fellow citizens: The peaceful transfer of authority is rare in h"| __truncated__
+##  $ : chr "Vice President Cheney, Mr. Chief Justice, President Carter, President Bush, President Clinton, members of the U"| __truncated__
+```
+
+
+
+---
+
+
+## How does mapping work?
+
+Suppose we have exam 1 and exam 2 scores of 4 students stored in a list...
+
+
+```r
+exam_scores &lt;- list(
+  exam1 &lt;- c(80, 90, 70, 50),
+  exam2 &lt;- c(85, 83, 45, 60)
+)
+```
+
+--
+
+...and we find the mean score in each exam
+
+
+```r
+map(exam_scores, mean)
+```
+
+```
+## [[1]]
+## [1] 72.5
+## 
+## [[2]]
+## [1] 68.25
+```
+
+---
+
+...and suppose we want the results as a numeric (double) vector
+
+
+```r
+map_dbl(exam_scores, mean)
+```
+
+```
+## [1] 72.50 68.25
+```
+
+...or as a character string
+
+
+```r
+map_chr(exam_scores, mean)
+```
+
+```
+## [1] "72.500000" "68.250000"
+```
+
+---
+
+## `map_something`
+
+Functions for looping over an object and returning a value (of a specific type):
+
+* `map()` - returns a list
+* `map_lgl()` - returns a logical vector
+* `map_int()` - returns a integer vector
+* `map_dbl()` - returns a double vector
+* `map_chr()` - returns a character vector
+* `map_df()` / `map_dfr()` - returns a data frame by row binding
+* `map_dfc()` - returns a data frame by column binding
+* ...
+
+---
+
+## Need to add the speeches to our data frame.
+### Turning the speeches into a data frame
+
+.pull-left[
+
+```r
+# enframe turns a list into a data frame
+all_speeches_df &lt;- all_speeches %&gt;% 
+  enframe(value = "speech")
+all_speeches_df
+```
+
+```
+## # A tibble: 55 x 2
+##    name speech   
+##   &lt;int&gt; &lt;list&gt;   
+## 1     1 &lt;chr [1]&gt;
+## 2     2 &lt;chr [1]&gt;
+## 3     3 &lt;chr [1]&gt;
+## 4     4 &lt;chr [1]&gt;
+## 5     5 &lt;chr [1]&gt;
+## 6     6 &lt;chr [1]&gt;
+## # … with 49 more rows
+```
+]
+
+--
+
+.pull-right[
+
+```r
+# unnest explodes each list element 
+# just one per row here, so retains 
+# original number of rows.
+all_speeches_df &lt;- all_speeches_df %&gt;%
+  unnest(speech) 
+all_speeches_df
+```
+
+```
+## # A tibble: 55 x 2
+##    name speech                                                   
+##   &lt;int&gt; &lt;chr&gt;                                                    
+## 1     1 " Fellow-Citizens of the Senate and of the House of Repr…
+## 2     2 "Fellow Citizens: I am again called upon by the voice of…
+## 3     3 "When it was first perceived, in early times, that no mi…
+## 4     4 " Called upon to undertake the duties of the first execu…
+## 5     5 " Proceeding, fellow citizens, to that qualification whi…
+## 6     6 "March 4, 1809Unwilling to depart from examples of the m…
+## # … with 49 more rows
+```
+]
+
+
+---
+
+## Need to add the speeches to our data frame.
+### Adding the speeches as a column 
+
+
+```r
+inaug_table &lt;- inaug_table %&gt;%
+  mutate(speech = all_speeches_df$speech)
+
+glimpse(inaug_table)
+```
+
+```
+## Rows: 55
+## Columns: 6
+## $ President &lt;chr&gt; "George Washington", "George Washington", "Jo…
+## $ Term      &lt;chr&gt; "1st Term", "2nd Term", "1st Term", "1st Term…
+## $ Year      &lt;chr&gt; "1789", "1793", "1797", "1801", "1805", "1809…
+## $ link      &lt;chr&gt; "18th_century/wash1.asp", "18th_century/wash2…
+## $ full_link &lt;chr&gt; "https://avalon.law.yale.edu/18th_century/was…
+## $ speech    &lt;chr&gt; " Fellow-Citizens of the Senate and of the Ho…
+```
+
+
+
+---
+
 
 # Attributions
 
