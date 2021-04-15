@@ -20,7 +20,7 @@
 - [Lecture 9, Web scraping, examples, and considerations](https://vcannataro.github.io/IDDS_2201_public/Lectures/L9_web_scraping/L9_web_scraping_examples_and_considerations.html#1)
 - [Lecture 10, Functions and iteration, with some more web scraping examples](https://vcannataro.github.io/IDDS_2201_public/Lectures/L10_functions_and_iteration/L10_functions_and_iteration.html#1)
 - [Lecture 11, Data science ethics](https://vcannataro.github.io/IDDS_2201_public/Lectures/L11_Data_science_ethics/L11_data_science_ethics.html#1)
-
+- [Lecture 12, Modeling part 1: The language of models, fitting and interpreting models, and linear models  ](https://vcannataro.github.io/IDDS_2201_public/Lectures/L12_modeling_p1/L12_modeling_part_1.html#1)
 
 
 
