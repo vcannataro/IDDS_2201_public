@@ -22,7 +22,9 @@
 - [Lecture 11, Data science ethics](https://vcannataro.github.io/IDDS_2201_public/Lectures/L11_Data_science_ethics/L11_data_science_ethics.html#1)
 - [Lecture 12, Modeling part 1: The language of models, fitting and interpreting models, and linear models  ](https://vcannataro.github.io/IDDS_2201_public/Lectures/L12_modeling_p1/L12_modeling_part_1.html#1)
 
+[Code-along Boston BlueBikes vs weather exercise](https://vcannataro.github.io/IDDS_2201_public/code_along/code_along_Boston_bluebikes/Boston_bike_rides_vs_weather_code-along.html)
 
+- [Lecture 13, Modeling part 2: Model checking and linear models with multiple predictors ](https://vcannataro.github.io/IDDS_2201_public/Lectures/L13_modeling_p2/L13_modeling_p2.html#1)
 
 
 # Attributions

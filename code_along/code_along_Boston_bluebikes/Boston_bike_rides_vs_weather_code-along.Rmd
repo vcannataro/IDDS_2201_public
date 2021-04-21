@@ -1,0 +1,252 @@
+---
+title: "Code along, Boston BlueBikes"
+author: "Dr. Cannataro"
+output: html_document
+---
+
+# Goal: Model bike rides vs. weather data 
+
+> Which weather variable explains the most variation within bike rides?
+
+# Input data... 
+
+```{r load_in_packages}
+library(tidyverse)
+# make sure to install the tidymodels package
+# remember, you only need to install packages once, 
+# so no need to keep the function in the .Rmd document. 
+# Here, I comment it out
+# install.packages("tidymodels")
+
+# but we still need to load it in every time with library()
+library(tidymodels)
+```
+
+## Bike data 
+
+```{r testing_a_file}
+# read in one of the files. 
+# Wow, read_csv can read in .zip files! 
+jan_rides <- readr::read_csv(file = "data/bluebikes/201801-hubway-tripdata.zip")
+
+# Look, the `birth year` variable is thought to be a character string. 
+# This will bite us later. 
+jan_rides$`birth year` %>% unique()
+
+# See the NULL? Keep that in mind. 
+```
+
+### Iterate through the files
+
+
+
+```{r all_my_files}
+
+# we want full.names=T because we need the file names to have the directory
+my_files <- dir(path = "data/bluebikes/",full.names = T)
+
+```
+
+
+#### Using a for loop
+
+```{r iterate_through_my_files, message=F}
+
+# using a for loop
+
+# same thing
+seq_along(my_files) 
+1:length(my_files)
+
+
+# create an empty data set
+bike_data <- NULL
+
+
+# for each number in the total number of files... 
+# e.g., file 1, 2, 3, ... 
+for(file_index in seq_along(my_files)){
+  
+  # read in this file
+  this_df <- readr::read_csv(file = my_files[file_index])
+  
+  # bind it to our main data frame
+  bike_data <- rbind(bike_data, this_df)
+  
+  # tell me where you are in the loop 
+  # (this is useful because sometimes loops break / get stuck and you can tell where)
+  # (it is also fun)
+  message(paste("I just read and pasted the ",file_index," file"))
+  
+  
+}
+
+
+# check the top and the bottom of my data
+head(bike_data)
+tail(bike_data)
+
+```
+
+
+#### Using map
+
+```{r using_map, message=F}
+
+# remember how above we saw that NULL in the birth year caused 
+# birth year to be assumed to be a  character vector for some months?
+# let's correct that by providing this option to read_csv.
+bike_data_2 <- purrr::map_dfr(my_files, read_csv, na = "NULL")
+
+# check the top and the bottom... 
+head(bike_data_2)
+tail(bike_data_2)
+# looks the same! 
+```
+
+Yay! 
+
+
+## Count the trips per day
+```{r}
+
+# count the number of trips per day, and rename the variable
+total_bike_rides <- bike_data %>% 
+  mutate(date = lubridate::date(starttime)) %>%
+  count(date) %>%
+  rename(total_bike_rides = "n") 
+
+```
+
+
+```{r}
+# take a look at the data
+ggplot(total_bike_rides) + 
+  geom_line(aes(x=date,y=total_bike_rides))
+```
+
+# Getting the weather data
+
+```{r}
+# load the weather data in.
+# downloaded directly from the website
+# https://www.ncdc.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND:USW00014739/detail
+# and cleaned with the cleaning script in the data/weather directory. 
+boston_weather <- readr::read_csv(file = "data/weather/weather_data_clean.csv")
+```
+
+
+# Joining it all together
+
+```{r}
+
+# join the columns by the date
+bike_and_weather_data <- left_join(x = total_bike_rides,y = boston_weather, by = c("date" = "DATE"))
+
+# save for future use/sharing with the class! 
+readr::write_rds(x = bike_and_weather_data, file = "data/bike_and_weather_data.rds")
+
+## This is how we load it back in if we are starting from here. 
+# bike_and_weather_data <- readr::read_rds(file = "data/bike_and_weather_data.rds")
+
+```
+
+
+# Exploring some variables
+
+```{r}
+ggplot(bike_and_weather_data,aes(y=total_bike_rides, x=Snowfall)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+
+ggplot(bike_and_weather_data,aes(y=total_bike_rides, x=Precipitation)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+ggplot(bike_and_weather_data,aes(y=total_bike_rides, x=Average_temperature)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+```
+
+
+# Building a function to make our plots and give us R-squared
+
+
+```{r}
+
+# define a variable name here so we can step through the guts of our function to test it
+
+variable_name <- "Precipitation"
+dot_color <- "blue"
+
+get_r_squared <- function(variable_name, dot_color, line_color="orange"){
+  
+  # now we use aes_string because we are providing our variable names as strings
+  my_plot <- ggplot(bike_and_weather_data,
+                    aes_string(y="total_bike_rides", x=variable_name)) + 
+    geom_point(color = dot_color) + 
+    geom_smooth(method = "lm", color=line_color)
+  
+  # create a temporary dataframe with our data so we can model
+  data_to_fit <- tibble(explanatory = pull(bike_and_weather_data[,variable_name]), 
+                        response = pull(bike_and_weather_data[,"total_bike_rides"]))
+  
+  # create our model
+  my_model <- linear_reg() %>%
+    set_engine("lm") %>%
+    fit(response ~ explanatory, data = data_to_fit)
+  
+  # glance(my_model)$r.squared
+  
+  # return a list with our R-squared and our plot
+  return(
+    list(my_r_squared = glance(my_model)$r.squared,
+         my_plot = my_plot)
+  )
+  
+}
+
+
+```
+
+## testing the function
+
+```{r}
+
+function_output <- get_r_squared(variable_name = "Precipitation",dot_color = "blue",line_color = "red")
+
+function_output$my_r_squared
+
+function_output$my_plot
+
+function_output <- get_r_squared(variable_name = "Average_temperature", dot_color="blue")
+
+function_output$my_r_squared
+
+function_output$my_plot
+
+```
+
+# Finding the variable with the highest R-squared
+
+```{r}
+
+
+# create a table to store our data
+r_squared_table <- tibble(variable = colnames(bike_and_weather_data)[3:10], r_squared = NULL)
+
+# using a loop to fill in our table
+for(row_ind in 1:nrow(r_squared_table)){
+  
+  r_squared_table[row_ind,"r_squared"] <- get_r_squared(variable_name = pull(r_squared_table[row_ind,"variable"]),dot_color = "blue")$my_r_squared
+  
+}
+
+
+# display our table 
+r_squared_table %>%
+  arrange(desc(r_squared))
+
+```
+
