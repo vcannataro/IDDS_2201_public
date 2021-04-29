@@ -1,0 +1,391 @@
+---
+title: "Visualizing data in space and time"
+author: "Dr. Cannataro and the IDDS 2201 class"
+date: "Last updated `r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+
+# Introduction
+
+As we learned in lecture, visualizing data can be tricky. 
+This is especially true when it comes to data that is tied to spatial information, such as a map. 
+Recall our example regarding election results---maps can be deceiving because it is easy to confuse the area information takes up on the screen with the magnitude of the underlying data. 
+
+In this code-along, we will strive to attach data to a map, and explore ways to visualize these data in ways that allow others to explore and interpret the data intuitively. 
+
+> Goal: Visualize data using maps, and maybe even time.
+
+# Packages 
+
+We will need several packages to help us through this journey. Install any that you have not previously used. 
+
+```{r, message=F,warning=F}
+library(tidyverse) # data exploration toolset
+library(gganimate) # visualizing through time
+library(lubridate) # exploring time data 
+library(sf)        # makes mapping easy...er
+library(cartogram) # transform spatial objects
+library(rayshader) # shine a light on data
+library(rgl)       # render data viz interactively 
+library(viridis)   # nice color palettes
+library(DT)        # interactive data tables
+library(plotly)    # interactive data plots
+library(maps)      # map tools
+```
+
+# Data 
+
+We will be visualizing the total COVID19 case counts. I provided the cases curated by the [New York Times within their open github repository.](https://github.com/nytimes/covid-19-data/)
+
+```{r}
+# load the data into our environment. Remember to check it readr guessed the classes
+# of the columns correctly! 
+NYTimes_COVID19_data <- readr::read_csv(file = "data/us-states.csv")
+
+```
+
+
+We will also want to normalize the case counts by state population. I provided the data, and how I obtained it. 
+
+```{r}
+# ran tidycensus::census_api_key() first with key sent to inbox.
+# More info: https://walker-data.com/tidycensus/articles/basic-usage.html
+
+## Ran this once and commented out so I do not have to keep bothering
+## the API
+# state_pop <-
+#   tidycensus::get_acs(geography = "state",
+#           variables = "B01003_001",
+#           year = 2018,
+#           geometry = F)
+# readr::write_rds(state_pop,file = "data/state_pop.rds")
+state_pop <- readr::read_rds(file = "data/state_pop.rds")
+```
+
+
+
+# Visualizing the data without using a map
+
+## Initial data exploration 
+
+
+```{r}
+# Glimpse at our data. 
+# Notice how every state is not represented for every date. We will fix that. 
+glimpse(NYTimes_COVID19_data)
+
+
+# Plot a variable. Does this look sensible? Is this data cumulative or new cases "per day" 
+NYTimes_COVID19_data %>%
+  filter(state=="Massachusetts") %>%
+  ggplot() + 
+  geom_point(aes(x=date,y=cases))
+```
+
+
+The data are cumulative, let's use the trick we discussed in the first code-along to make it new cases per day
+
+```{r}
+NYTimes_COVID19_data <- NYTimes_COVID19_data %>%
+  group_by(state) %>%
+  # subtract cases from previous cases from this state
+  mutate(new_cases = cases - lag(cases, default = 0)) %>% 
+  # take out any weird data brought on by changes in reporting standards, etc. 
+  filter(new_cases >= 0) %>%
+  ungroup() %>%
+  # "complete" missing data for unreported days, assuming zero new cases those days
+  # We will be averaging cases using a rolling mean, so cases missed on day and 
+  # added onto the next day will average out. 
+  tidyr::complete(date = tidyr::full_seq(date,period=1),
+                  state,
+                  fill=list(new_cases = NA))
+
+
+# Does this look like the "new cases per day" plot we expect?
+NYTimes_COVID19_data %>%
+  filter(state=="Massachusetts") %>%
+  ggplot() + 
+  geom_line(aes(x=date,y=new_cases))
+```
+
+
+Let's add the rolling mean variable, which averages out the daily variation throughout the week that [we discovered previously](https://vcannataro.github.io/IDDS_2201_public/code_along/code_along_COVID19/code_along_COVID19_final_code.html)
+
+
+What would this look like if we tried to visualize the relationship between cases and states over time? 
+
+```{r fig.width=10}
+NYTimes_COVID19_data %>%
+  ggplot() + 
+  geom_line(aes(x=date,y=new_cases,color=state))
+```
+
+Hmmm... 
+
+What about for a certain day? Can we get a more readable graph? 
+
+```{r}
+my_date <- "2020-07-01"
+
+NYTimes_COVID19_data %>% 
+  filter(date == my_date) %>%
+  ggplot() + 
+  geom_col(aes(y=new_cases,x=state, fill=new_cases)) + 
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle=90,hjust=1,vjust=0.5))
+```
+
+
+We can make more sense of the data this way. But, it is still difficult to quickly find data you may be interested in, and more importantly, "see" the data in space. This is an epidemic---we need to be able to see *where* the cases are. For that, we need to map the data onto... a map. 
+
+# Mapping data
+
+
+```{r}
+# we need to get the geospatial data
+usa <- st_as_sf(maps::map("state", fill=TRUE, plot =FALSE)) %>%
+  sf::st_transform(crs = 4236)
+usa
+```
+
+
+Adding our case estimates to our geospatial data: 
+
+```{r}
+NYTimes_COVID19_data %>%
+  mutate(ID = tolower(state)) -> NYTimes_COVID19_data
+
+covid_map_data <- left_join(x = usa, y = NYTimes_COVID19_data, by="ID")
+```
+
+
+```{r}
+
+# geom_sf finds the spatial data within covid_map_data automatically
+ggplot(covid_map_data %>% filter(date == my_date)) + 
+  geom_sf(aes(fill=new_cases)) 
+
+```
+
+```{r}
+# we can use a color palette that is more friendly for telling differences
+# in magnitude 
+covid_map_data %>% 
+  filter(date == my_date) %>%
+  ggplot() + 
+  geom_sf(aes(fill=new_cases)) + 
+  scale_fill_viridis(option = "plasma") + 
+  labs(title=paste("New COVID19 cases on", my_date)) + 
+  theme_bw()
+
+
+```
+
+
+
+```{r}
+
+# What if we wanted to visualize the number of new cases normalized by the per-state 
+# population? 
+
+
+covid_map_data <- covid_map_data %>% 
+  left_join(state_pop, by=c("state"="NAME")) %>%
+  mutate(new_cases_per_1e5people = (new_cases*1e5)/estimate )
+```
+
+
+## Maps: adding points and zooming in
+
+```{r}
+ggplot(covid_map_data %>% filter(date == "2020-07-01")) + 
+  geom_sf(aes(fill=new_cases_per_1e5people)) + 
+  scale_fill_viridis(option = "plasma")
+
+# we can add points via their long/lat coordinates
+EC_local <- tibble(long=-71.10307267670433,lat=42.340854411959974,name="Emmanuel College")
+
+# we just have to convert them to the sf class first
+EC_local <- EC_local %>% 
+  sf::st_as_sf(coords = c("long", "lat"), crs = 4236)
+
+# adding points
+ggplot(covid_map_data %>% filter(date == "2020-07-01")) + 
+  geom_sf(aes(fill=new_cases_per_1e5people)) + 
+  geom_sf(data = EC_local, size=2,color="red", shape=23) +
+  scale_fill_viridis(option = "plasma")
+
+
+# zooming in using coord_sf()
+ggplot(covid_map_data %>% filter(date == "2020-07-01")) + 
+  geom_sf(aes(fill=new_cases_per_1e5people)) + 
+  geom_sf(data = EC_local, size=2,color="red", shape=23) +
+  scale_fill_viridis(option = "plasma") + 
+  coord_sf(xlim = c(-80,-70),ylim = c(40,45), expand = F) + 
+  theme_bw()
+
+
+
+```
+
+## Transforming map data to represent variables of interest
+
+```{r}
+
+# we can convert the states to circles with size proportional to a variable of interest
+
+cart <- cartogram::cartogram_dorling(covid_map_data %>% 
+                                       filter(date == my_date) %>%
+                                       sf::st_transform(crs = 5070), "new_cases_per_1e5people")
+
+
+
+ggplot(cart) + 
+  geom_sf(aes(fill=new_cases_per_1e5people)) + 
+  scale_fill_viridis(option = "plasma") + 
+  theme_minimal()
+
+
+# we can adjust the size of the states such that they are proportional to the variable of interest
+
+cart2 <- cartogram::cartogram_ncont(covid_map_data %>% 
+                                      filter(date == my_date) %>%
+                                      sf::st_transform(crs = 5070), "new_cases_per_1e5people")
+
+ggplot(cart2) + 
+  geom_sf(aes(fill=new_cases_per_1e5people)) + 
+  scale_fill_viridis(option = "plasma") + 
+  theme_minimal()
+```
+
+
+# Interactive elements
+
+
+Sometimes, it is difficult to "see" the data regardless of geospatial alignment. 
+For instance, in the map below, do you know the name of every state? Can you tell the exact value of the new cases per 100,000 people in each state? 
+
+```{r}
+ggplot(covid_map_data %>% filter(date == my_date) %>% st_transform(crs = 5070)) + 
+  geom_sf(aes(fill=new_cases_per_1e5people)) + 
+  scale_fill_viridis(option = "plasma") + 
+  theme_bw()
+```
+
+
+We can compliment our visualizations with the actual data! 
+
+
+```{r}
+covid_map_data %>% 
+  as_tibble() %>%
+  filter(date == my_date) %>%
+  select(date, state, new_cases,new_cases_per_1e5people) %>%
+  arrange(desc(new_cases_per_1e5people)) %>%
+  mutate(new_cases_per_1e5people = round(new_cases_per_1e5people,2)) %>%
+  DT::datatable()
+```
+
+
+Or maybe you want your data directly on the map! 
+
+```{r}
+my_map <- ggplot(covid_map_data %>% 
+                   filter(date == my_date) %>%
+                   mutate(new_cases_per_1e5people = round(new_cases_per_1e5people,2)) %>%
+                   st_transform(crs = 5070)) + 
+  geom_sf(aes(fill=new_cases_per_1e5people, text=state)) + 
+  scale_fill_viridis(option = "plasma") + 
+  theme_bw() +
+  labs(title=paste("New COVID19 cases on", my_date,"\nI am interactive! Click around."))
+
+
+plotly::ggplotly(my_map)  %>%
+  style(hoverlabel = list(bgcolor = "white"), hoveron = "fill")
+```
+
+
+# Combining a map with another dimension
+
+## Heights as variables-of-interest
+
+```{r}
+# plug our ggplot into the plot_gg function from the awesome rayshader package
+plot_gg(my_map, width = 5, height = 5, multicore = TRUE, scale = 250,
+        zoom = 0.6, theta = 0, phi = 90, windowsize = c(800, 800))
+# wait a bit
+Sys.sleep(0.2)
+# render the output as a widget so it embeds within our html output. 
+rgl::rglwidget()
+
+
+rgl::rgl.close()
+
+# we can also render a snapshot
+plot_gg(my_map + 
+          labs(title=paste("New COVID19 cases on", my_date)), width = 5, height = 5, multicore = TRUE, scale = 250,
+        zoom = 0.6, theta = 30, phi = 55, windowsize = c(800, 800))
+Sys.sleep(0.2)
+render_snapshot(clear = TRUE)
+
+rgl::rgl.close()
+```
+
+
+
+
+
+## Data... through time! 
+
+
+
+
+
+```{r}
+# cut into the data we want
+
+my_date_seq <- seq(as.Date("2020-03-10"),as.Date("2021-04-26"),by=7)
+
+
+```
+
+
+
+```{r}
+
+covid_map_data %>%  
+  group_by(state) %>%
+  mutate(new_cases_rollmean = zoo::rollmean(x = new_cases_per_1e5people,14,na.pad=T)) %>%
+  filter(date %in% my_date_seq) -> 
+  covid_to_plot
+
+
+covid_map_data %>%  
+  group_by(state) %>%
+  mutate(new_cases_rollmean = zoo::rollmean(x = new_cases_per_1e5people,7,na.pad=T)) %>%
+  filter(date %in% my_date_seq) %>%
+  ggplot() + 
+  geom_sf(aes(fill=new_cases_rollmean)) + 
+  # scale_fill_viridis(option = "plasma") + 
+  scale_fill_gradientn(colors = viridis_pal(option = "plasma")(15),
+                       limits=c(0,
+                                max(covid_to_plot$new_cases_rollmean))) +
+  theme_bw() + 
+  labs(title = "New cases per 100K people in each state, {frame_time}",
+       fill = "New cases per 100K people") + 
+  transition_time(date) + 
+  ease_aes("linear") -> 
+  cases_over_time
+
+
+animate(cases_over_time,nframes = 100)
+
+
+```
+
+
+

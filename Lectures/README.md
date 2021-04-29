@@ -26,6 +26,7 @@
 
 - [Lecture 13, Modeling part 2: Model checking and linear models with multiple predictors ](https://vcannataro.github.io/IDDS_2201_public/Lectures/L13_modeling_p2/L13_modeling_p2.html#1)
 
+[Code-along visualizing data in space and time using maps](https://vcannataro.github.io/IDDS_2201_public/code_along/code_along_space_and_time_and_maps/space_and_time_code_along.html)
 
 # Attributions
 
