@@ -28,6 +28,9 @@
 
 [Code-along visualizing data in space and time using maps](https://vcannataro.github.io/IDDS_2201_public/code_along/code_along_space_and_time_and_maps/space_and_time_code_along.html)
 
+
+- [Lecture 14, Modeling part 3: Multiple predictors again, logistic regression](https://vcannataro.github.io/IDDS_2201_public/Lectures/L14_modeling_p3/L14_modeling_p3_more_predictors_and_logistic_regression.html)
+
 # Attributions
 
 - Much of the content in these lecture notes was adapted from the wonderful [datasciencebox](https://datasciencebox.org) written by Mine Çetinkaya-Rundel. The work is released with a [Creative Commons Attribution Share Alike 4.0 International](https://github.com/rstudio-education/datascience-box/blob/master/LICENSE.md) license.  
