@@ -645,14 +645,14 @@ ggplot(data = penguins,
 ggplot(data = penguins,
        mapping = aes(x = bill_depth_mm,
                      y = bill_length_mm,
-                     color = species)) +
-  geom_point() +
+                     fill = species)) + #<<
+  geom_point(color="black",shape=21) + #<<
   labs(title = "Bill depth and length",
        subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
        x = "Bill depth (mm)", y = "Bill length (mm)",
        color = "Species",
        caption = "Source: Palmer Station LTER / palmerpenguins package") +
-  scale_color_viridis_d() #<<
+  scale_fill_viridis_d() #<<
 ```
 ]
 .pull-right[
@@ -673,14 +673,14 @@ ggplot(data = penguins,
 ggplot(data = penguins,
        mapping = aes(x = bill_depth_mm,
                      y = bill_length_mm,
-                     color = species)) +
-  geom_point() +
+                     fill = species)) + #<<
+  geom_point(color="black",shape=21) + #<<
   labs(title = "Bill depth and length",
        subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
        x = "Bill depth (mm)", y = "Bill length (mm)",
        color = "Species",
        caption = "Source: Palmer Station LTER / palmerpenguins package") +
-  scale_color_viridis_d()
+  scale_fill_viridis_d() #<<
 ```
 ]
 .panel[.panel-name[Narrative]
