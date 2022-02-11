@@ -17,7 +17,7 @@ output:
 ```
 
 
-```{r,echo=F}
+```{r,echo=F, warning=F}
 library(tidyverse)
 ```
 
@@ -447,13 +447,67 @@ knitr::include_graphics("img/Rstudio_code_inline.png")
 
 ---
 
+# Subsetting data for a plot
+
+Let's say you want to remove our old friend Jabba from the star wars plot (sorry, Jabba)
+
+
+.small[
+```{r, warning=F,out.width = "40%",out.width="35%"}
+# note that in this code chunk I feed star wars into ggplot, 
+# and then I feed a subset of starwars into a specific geom_point call
+# so that I just highlight Jabba's point. 
+starwars %>%
+  ggplot(aes(x=height,y=mass)) + 
+  geom_point() + 
+  geom_point(data = starwars %>% 
+               filter(name == "Jabba Desilijic Tiure"), 
+             size = 5, pch = 1, color = "pink", stroke = 3) + 
+  geom_text(data = starwars %>% 
+               filter(name == "Jabba Desilijic Tiure"), label="Jabba is here -->   ",
+             size = 5,hjust=1) 
+```
+]
+
+---
+
+You can filter the dataset, and then feed it into ggplot: 
+
+```{r, warning=F,out.width="50%"}
+
+starwars %>% # take the starwars dataframe, and then
+  filter(mass < 1000) %>% # Only keep observations with mass less than 1000, and then
+  ggplot(aes(x=height,y=mass)) + # plot, mapping height to x and mass to y, and 
+  geom_point() # represent our data as points. 
+
+```
+
+Since Jabba is not in this dataset, ggplot zooms into the remaining data. 
+
+---
+
+
+Or you can use the `coord_cartesian` function
+
+```{r, warning=F, out.width="50%"}
+starwars %>% # take the starwars dataframe, and then
+  ggplot(aes(x=height,y=mass)) + # plot, mapping height to x and mass to y, and 
+  geom_point() +  # represent our data as points, and
+  coord_cartesian(ylim=c(0,1000)) # zoom into the data with y limits of 0 to 1000
+```
+Here, Jabba still exists in the data, and you are telling ggplot to zoom into a subset of the data. 
+Notice the difference between the two plots.
+
+
+---
+
 
 
 
 # P.S. 
 
 
-- FAQ page on [ECLearn](https://eclearn.emmanuel.edu/courses/3147960/pages/r-and-git-faqs)
+- FAQ page on [ECLearn](https://eclearn.emmanuel.edu/courses/3412420/pages/r-and-git-faqs)
 
 ```{r, echo=F,out.width="75%"}
 knitr::include_graphics(path = "img/ECLearn_FAQ.png")

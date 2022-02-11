@@ -19,6 +19,11 @@
     <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
     <link href="libs/tile-view/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view/tile-view.js"></script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"bfeae4f465594f689db04f675016553c","expires":14}</script>
+    <script src="libs/himalaya/himalaya.js"></script>
+    <script src="libs/js-cookie/js.cookie.js"></script>
+    <link href="libs/editable/editable.css" rel="stylesheet" />
+    <script src="libs/editable/editable.js"></script>
     <link rel="stylesheet" href="../xaringan-themer.css" type="text/css" />
     <link rel="stylesheet" href="../slides.css" type="text/css" />
   </head>
@@ -139,7 +144,7 @@ starwars %&gt;%
 ```
 
 ```
-## # A tibble: 87 x 4
+## # A tibble: 87 × 4
 ##   name           height  mass   BMI
 ##   &lt;chr&gt;           &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1 Luke Skywalker    172    77 0.448
@@ -261,7 +266,7 @@ my_data_frame
 ```
 
 ```
-## # A tibble: 4 x 2
+## # A tibble: 4 × 2
 ##   var1       var2
 ##   &lt;chr&gt;     &lt;dbl&gt;
 ## 1 One           1
@@ -347,7 +352,7 @@ my_data_frame[1,]
 ```
 
 ```
-## # A tibble: 1 x 2
+## # A tibble: 1 × 2
 ##   var1   var2
 ##   &lt;chr&gt; &lt;dbl&gt;
 ## 1 One       1
@@ -361,7 +366,7 @@ my_data_frame[,2]
 ```
 
 ```
-## # A tibble: 4 x 1
+## # A tibble: 4 × 1
 ##    var2
 ##   &lt;dbl&gt;
 ## 1     1
@@ -389,7 +394,7 @@ my_data_frame[4,1]
 ```
 
 ```
-## # A tibble: 1 x 1
+## # A tibble: 1 × 1
 ##   var1    
 ##   &lt;chr&gt;   
 ## 1 Squirrel
@@ -413,7 +418,7 @@ my_new_object
 ```
 
 ```
-## # A tibble: 1 x 1
+## # A tibble: 1 × 1
 ##   var1    
 ##   &lt;chr&gt;   
 ## 1 Squirrel
@@ -446,7 +451,7 @@ my_data_frame[1:2,]
 ```
 
 ```
-## # A tibble: 2 x 2
+## # A tibble: 2 × 2
 ##   var1   var2
 ##   &lt;chr&gt; &lt;dbl&gt;
 ## 1 One       1
@@ -555,8 +560,8 @@ my_sequence %in% evens
 ```
 
 ```
-##  [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
-## [13] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+##  [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+## [11] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
 ```
 
 ---
@@ -573,8 +578,8 @@ my_sequence %in% evens
 ```
 
 ```
-##  [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
-## [13] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+##  [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+## [11] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
 ```
 
 
@@ -600,8 +605,8 @@ my_sequence %in% 3:8
 ```
 
 ```
-##  [1] FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE
-## [13] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [1] FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE
+## [11] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
 ```
 
 
@@ -628,8 +633,8 @@ my_sequence &lt; 10
 ```
 
 ```
-##  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE
-## [13] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+##  [1]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE
+## [11] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
 ```
 
 
@@ -658,7 +663,7 @@ my_data_frame
 ```
 
 ```
-## # A tibble: 4 x 2
+## # A tibble: 4 × 2
 ##   var1       var2
 ##   &lt;chr&gt;     &lt;dbl&gt;
 ## 1 One           1
@@ -681,7 +686,7 @@ my_data_frame %&gt;%
 ```
 
 ```
-## # A tibble: 3 x 2
+## # A tibble: 3 × 2
 ##   var1       var2
 ##   &lt;chr&gt;     &lt;dbl&gt;
 ## 1 Two           2
@@ -701,7 +706,7 @@ my_var1
 ```
 
 ```
-## # A tibble: 4 x 2
+## # A tibble: 4 × 2
 ##   var1       var2
 ##   &lt;chr&gt;     &lt;dbl&gt;
 ## 1 Squirrel     17
@@ -733,7 +738,7 @@ my_data_frame %&gt;%
 ```
 
 ```
-## # A tibble: 3 x 2
+## # A tibble: 3 × 2
 ##   var1       var2
 ##   &lt;chr&gt;     &lt;dbl&gt;
 ## 1 Two           2
@@ -752,13 +757,74 @@ my_data_frame %&gt;%
 
 ---
 
+# Subsetting data for a plot
+
+Let's say you want to remove our old friend Jabba from the star wars plot (sorry, Jabba)
+
+
+.small[
+
+```r
+# note that in this code chunk I feed star wars into ggplot, 
+# and then I feed a subset of starwars into a specific geom_point call
+# so that I just highlight Jabba's point. 
+starwars %&gt;%
+  ggplot(aes(x=height,y=mass)) + 
+  geom_point() + 
+  geom_point(data = starwars %&gt;% 
+               filter(name == "Jabba Desilijic Tiure"), 
+             size = 5, pch = 1, color = "pink", stroke = 3) + 
+  geom_text(data = starwars %&gt;% 
+               filter(name == "Jabba Desilijic Tiure"), label="Jabba is here --&gt;   ",
+             size = 5,hjust=1) 
+```
+
+&lt;img src="L0_useful_R_tips_files/figure-html/unnamed-chunk-44-1.png" width="35%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+You can filter the dataset, and then feed it into ggplot: 
+
+
+```r
+starwars %&gt;% # take the starwars dataframe, and then
+  filter(mass &lt; 1000) %&gt;% # Only keep observations with mass less than 1000, and then
+  ggplot(aes(x=height,y=mass)) + # plot, mapping height to x and mass to y, and 
+  geom_point() # represent our data as points. 
+```
+
+&lt;img src="L0_useful_R_tips_files/figure-html/unnamed-chunk-45-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+Since Jabba is not in this dataset, ggplot zooms into the remaining data. 
+
+---
+
+
+Or you can use the `coord_cartesian` function
+
+
+```r
+starwars %&gt;% # take the starwars dataframe, and then
+  ggplot(aes(x=height,y=mass)) + # plot, mapping height to x and mass to y, and 
+  geom_point() +  # represent our data as points, and
+  coord_cartesian(ylim=c(0,1000)) # zoom into the data with y limits of 0 to 1000
+```
+
+&lt;img src="L0_useful_R_tips_files/figure-html/unnamed-chunk-46-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+Here, Jabba still exists in the data, and you are telling ggplot to zoom into a subset of the data. 
+Notice the difference between the two plots.
+
+
+---
+
 
 
 
 # P.S. 
 
 
-- FAQ page on [ECLearn](https://eclearn.emmanuel.edu/courses/3147960/pages/r-and-git-faqs)
+- FAQ page on [ECLearn](https://eclearn.emmanuel.edu/courses/3412420/pages/r-and-git-faqs)
 
 &lt;img src="img/ECLearn_FAQ.png" width="75%" style="display: block; margin: auto;" /&gt;
 
