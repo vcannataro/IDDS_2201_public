@@ -19,6 +19,11 @@
     <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
     <link href="libs/tile-view/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view/tile-view.js"></script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"e3752b5bb09a499eb428e62f8f84c763","expires":14}</script>
+    <script src="libs/himalaya/himalaya.js"></script>
+    <script src="libs/js-cookie/js.cookie.js"></script>
+    <link href="libs/editable/editable.css" rel="stylesheet" />
+    <script src="libs/editable/editable.js"></script>
     <link rel="stylesheet" href="../xaringan-themer.css" type="text/css" />
     <link rel="stylesheet" href="../slides.css" type="text/css" />
   </head>
@@ -432,12 +437,34 @@ class: middle
 
 ---
 
-## Use facets
+
+## Use dodged positions to keep all bars grounded
 
 .panelset[
 
 .panel[.panel-name[Plot]
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-20-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-20-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Code]
+
+
+```r
+ggplot(brexit, aes(y = region, fill = opinion)) + 
+* geom_bar(position="dodge")
+```
+]
+
+]
+
+---
+
+## Use facets to break up stories
+
+.panelset[
+
+.panel[.panel-name[Plot]
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-21-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 .panel[.panel-name[Code]
@@ -456,7 +483,7 @@ ggplot(brexit, aes(y = opinion, fill = region)) +
 
 ## Avoid redundancy?
 
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-21-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-22-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -465,7 +492,7 @@ ggplot(brexit, aes(y = opinion, fill = region)) +
 .panelset[
 
 .panel[.panel-name[Plot]
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-22-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-23-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 .panel[.panel-name[Code]
@@ -487,7 +514,13 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 .panelset[
 
 .panel[.panel-name[Plot]
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-23-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-24-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 .panel[.panel-name[Code]
@@ -498,6 +531,11 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
   geom_bar() +
   facet_wrap(~region, nrow = 1) +
 * guides(fill = FALSE)
+```
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
 ```
 ]
 
@@ -510,7 +548,13 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 .panelset[
 
 .panel[.panel-name[Plot]
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-24-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-25-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 .panel[.panel-name[Code]
@@ -526,6 +570,11 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
     x = NULL, y = NULL
   )
 ```
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
 ]
 
 ]
@@ -537,7 +586,13 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 .panelset[
 
 .panel[.panel-name[Plot]
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-25-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-26-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 .panel[.panel-name[Code]
@@ -555,6 +610,11 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
     x = NULL, y = NULL
   )
 ```
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
 ]
 
 ]
@@ -566,7 +626,13 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 .panelset[
 
 .panel[.panel-name[Plot]
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-26-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-27-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 .panel[.panel-name[Code]
@@ -584,6 +650,11 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
     x = NULL, y = NULL
   )
 ```
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
 ]
 
 ]
@@ -595,7 +666,13 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 .panelset[
 
 .panel[.panel-name[Plot]
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-27-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-28-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 .panel[.panel-name[Code]
@@ -616,6 +693,11 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
     x = NULL, y = NULL
   )
 ```
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
 ]
 
 ]
@@ -630,7 +712,13 @@ class: middle
 
 ## Rainbow colors not always the right choice
 
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-28-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-29-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -639,7 +727,13 @@ class: middle
 .panelset[
 
 .panel[.panel-name[Plot]
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-29-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-30-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 .panel[.panel-name[Code]
@@ -659,6 +753,11 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 *   "Right" = "green",
 *   "Don't know" = "gray"
 * ))
+```
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
 ```
 ]
 
@@ -700,7 +799,13 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 .panelset[
 
 .panel[.panel-name[Plot]
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-33-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-34-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 .panel[.panel-name[Code]
@@ -721,6 +826,11 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 *   "Don't know" = "gray"
   ))
 ```
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
 ]
 
 ]
@@ -732,7 +842,13 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 .panelset[
 
 .panel[.panel-name[Plot]
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-34-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
+```
+
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-35-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 .panel[.panel-name[Code]
@@ -751,6 +867,11 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
                                "Right" = "#67a9cf",
                                "Don't know" = "gray")) +
 * theme_minimal()
+```
+
+```
+## Warning: `guides(&lt;scale&gt; = FALSE)` is deprecated. Please use
+## `guides(&lt;scale&gt; = "none")` instead.
 ```
 ]
 
@@ -793,7 +914,7 @@ boston_airbnb %&gt;%
 * theme(axis.text.x = element_text(angle = 90))
 ```
 
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-35-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-36-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
 
 ---
@@ -813,7 +934,7 @@ boston_airbnb %&gt;%
 *                                  hjust = 1))
 ```
 
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-36-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-37-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
 
 
@@ -835,7 +956,7 @@ boston_airbnb %&gt;%
 *                                  vjust = 0.5))
 ```
 
-&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-37-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="L7_effective_data_visualization_files/figure-html/unnamed-chunk-38-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
 
 

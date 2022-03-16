@@ -464,7 +464,29 @@ ggplot(brexit, aes(y = region, fill = opinion)) + #<<
 
 ---
 
-## Use facets
+
+## Use dodged positions to keep all bars grounded
+
+.panelset[
+
+.panel[.panel-name[Plot]
+```{r ref.label="dodging", echo = FALSE}
+```
+]
+
+.panel[.panel-name[Code]
+
+```{r dodging, fig.show = "hide"}
+ggplot(brexit, aes(y = region, fill = opinion)) + 
+  geom_bar(position="dodge") #<<
+```
+]
+
+]
+
+---
+
+## Use facets to break up stories
 
 .panelset[
 
