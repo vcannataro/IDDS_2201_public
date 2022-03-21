@@ -142,6 +142,30 @@ knitr::include_graphics("img/cost_of_gas.png")
 
 ---
 
+# A recent example of stretching the axes... 
+
+```{r, echo=F}
+knitr::include_graphics("img/Screenshot from 2022-03-21 11-35-59edit.png")
+
+```
+
+
+---
+
+```{r, echo=F}
+knitr::include_graphics("img/FKIqqi3WUAYEQhB.png")
+```
+
+
+---
+
+```{r, echo=F}
+knitr::include_graphics("img/FKIqtMZXwAgH91t.png")
+```
+
+---
+
+
 .question[
 What is wrong with this picture? How would you correct it?
 ]
