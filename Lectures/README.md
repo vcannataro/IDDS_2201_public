@@ -1,5 +1,6 @@
 # Lecture notes for the IDDS 2201 course. 
 
+[Code along ice skating in a backyard](https://vcannataro.github.io/IDDS_2201_public/code_along/code_along_ice_skate/ice_skating_backyard_investigate.html)
 
 - [Lecture 0, Some useful R tips](https://vcannataro.github.io/IDDS_2201_public/Lectures/L0_useful_R_tips/L0_useful_R_tips.html#1)
 - Lecture 1, Welcome and course policies found on our ECLearn page. 
