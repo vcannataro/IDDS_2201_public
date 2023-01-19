@@ -1,0 +1,247 @@
+---
+title: "When could you skate in your backyard?"
+author: "Vincent L. Cannataro, Ph.D. and the IDDS 2201 team"
+date: "`r Sys.Date()`"
+output:  
+  html_document:
+   toc: true
+   toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Around Thanksgiving the winter-loving and backyard-having people of MA build ice rinks in their yard and eagerly await the cold weather. This year, none of those rinks are filled with water yet because the temperatures have not gone below 0C long enough to result in a freeze. 
+
+**Is the lack of freezing weather atypical? Getting more common? Cause for concern?**
+
+In *IDDS 2201: Data Analytics* we will learn the tools that allow us to readily analyze these sorts of questions.
+
+
+```{r, include=F}
+# load in the packages 
+library(tidyverse)
+library(lubridate)
+library(geosphere)
+library(DT)
+```
+
+
+# Get weather data
+
+The first thing we need is data. Let's outline some goals: 
+
+- Find historical weather station data
+- Download temperature data for analysis
+
+Luckily, the folks at the National Oceanic and Atmospheric Administration publish updated and readily accessible weather data daily: https://data.noaa.gov/onestop/ 
+
+The data is accessible via https within the directory `https://www.ncei.noaa.gov/pub/data/ghcn/daily/`
+
+And the `readme` file shows that `ghcnd-inventory.txt` contains weather station location and variables measured over time. 
+
+```{r, message=F}
+# load in the data table containing weather stations 
+inventory <- read_table(file = "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-inventory.txt",
+                        col_names = c("station", "lat", "lon", "variable", "start", "end"))
+
+# how big is it? 
+dim(inventory)
+
+# That is a lot of rows! 
+# look at a random 100 rows
+inventory %>%
+  slice_sample(n = 100) %>%
+  DT::datatable()
+```
+
+We just need to find the weather data closest to coordinates we care about. 
+
+## Determine the nearest weather station location
+
+Go to [Google Maps](https://maps.google.com) and right-click anywhere for the lat/long of the location. 
+
+```{r}
+# default: suburbia outside Boston
+# my_lat <- 42.22135361029577 
+# my_long <- -71.09712050998877
+
+my_lat <- 42.22135361029577 
+my_long <- -71.09712050998877
+variable_of_interest <- "TMAX"
+
+# for station choice, a number represents the "nth closest station"
+# sometimes there is a problem with this station (missing data for decades, etc.),
+# so you can also choose the name of the station you want in quotes e.g. "USC00190736"
+station_choice <- 1 # "USC00190736"
+```
+
+
+```{r}
+my_station_choices <- inventory %>% 
+  # distance on a globe "as the crow flies"
+  mutate(distance = geosphere::distHaversine(cbind(my_long,my_lat),cbind(lon,lat))) %>% 
+  # filter out everything except our variable of interest
+  filter(variable == variable_of_interest) %>%
+  # want recent dates and dates that go back far
+  filter(start < 1960 & end > 2020) %>%
+  # arrange by ascending distance variable
+  arrange(distance) 
+
+# display the closest stations
+my_station_choices %>%
+  slice_head(n = 1000) %>% 
+  DT::datatable()
+```
+
+
+
+```{r}
+# if statements to pick either the station you chose (character) or the nth closest station (numeric) 
+
+if(is.character(station_choice)){
+  my_station <- station_choice  
+}
+
+if(is.numeric(station_choice)){
+  my_station <- my_station_choices$station[station_choice]  
+}
+
+```
+
+## Download the data
+
+Once our weather station is chosen we can paste it into the URL at noaa.gov and directly read in the data.
+
+```{r}
+station_daily <- paste0("https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/",my_station,".csv.gz")
+
+# read in the data, specifying column names and "types" of data
+local_weather <- read_csv(station_daily,
+                          col_names = c("station", "date", "variable", "value", "a", "b", "c", "d"),
+                          col_types = "cdcdcccc")
+
+
+local_weather %>%
+  slice_head(n = 100) %>% 
+  DT::datatable()
+
+```
+
+# Cleaning the data 
+
+```{r}
+local_weather <- local_weather %>%
+  select(date, variable, value) %>%
+  pivot_wider(names_from = "variable", values_from="value",
+              values_fill = 0) %>%
+  select(date, TMIN, 
+         # TAVG, 
+         TMAX,PRCP, SNOW) %>%
+  mutate(date = lubridate::ymd(date)) %>%
+  # values are in "tenth"s
+  mutate(TMIN = TMIN/10, 
+         # TAVG = TAVG/10,
+         TMAX = TMAX/10,
+         PRCP = PRCP/10, 
+         SNOW = SNOW/10) 
+
+
+DT::datatable(local_weather[1:100,]) # much better
+```
+
+
+We need to determine how many days one can have a completed, frozen, ice rink in their backyard. 
+
+Below, I calculate this by determining the span of continuous days where the max 
+temp does not pass above 0C, and then subtracting 3 from this max number per span 
+(assuming it takes about 3 days for the water to freeze—information procured from a 
+very knowledgable neighbor!) 
+
+
+```{r}
+local_weather <- local_weather %>%
+  mutate(is_frozen = TMAX<=0) %>%
+  mutate(year = lubridate::year(date)) %>%
+  arrange(date) %>%
+  mutate(frozen_span = 0)
+
+if(local_weather$is_frozen[1]){local_weather$frozen_span[1] <- 1}
+
+local_weather$max_frozen_span <- 0
+
+for(row_ind in 2:nrow(local_weather)){
+  
+  if(local_weather$is_frozen[row_ind]){
+    local_weather$frozen_span[row_ind] <- local_weather$frozen_span[row_ind-1] +1  
+  }
+  
+  if(local_weather$is_frozen[row_ind] == F & 
+     local_weather$is_frozen[row_ind-1] == T){
+    
+    local_weather$max_frozen_span[row_ind] <- local_weather$frozen_span[row_ind-1]
+    
+  }
+  
+}
+
+
+
+frozen_span_df <- local_weather %>%
+  filter(max_frozen_span>0) %>%
+  select(date, year, max_frozen_span)
+
+days_to_freeze <- 3
+
+local_weather <- local_weather %>% 
+  mutate(days_frozen = case_when(max_frozen_span > days_to_freeze ~ max_frozen_span - days_to_freeze, 
+                                 TRUE ~ 0))
+
+# how many total frozen days per year?
+frozen_days <- local_weather %>% 
+  group_by(year) %>%
+  summarize(total_freeze = sum(days_frozen))
+
+```
+
+# Visualizing the data 
+
+```{r}
+
+frozen_days %>%
+  ggplot(aes(x=year,y=total_freeze)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  theme_bw() + 
+  labs(x="Year", y="Number of days you can iceskate in your backyard",
+       caption = paste0("Weather data from weather station ",my_station, "
+                        Number of days calculated by counting days the maximum temperature did not exceed 0C after ",days_to_freeze," days below freezing"))
+
+
+```
+
+
+In class, we will talk about what we assume when we pick a linear model. Would this model make sense outside of the time span here?
+
+```{r}
+
+
+lm(formula = total_freeze ~ year, data = frozen_days) %>% summary() 
+
+```
+
+
+Here are all the data: 
+
+```{r}
+frozen_days %>% 
+  DT::datatable()
+```
+
+
+# Acknowledgements
+
+Thank you to Prof. Pat Schloss for [inspiration](https://github.com/riffomonas/climate_viz) on downloading weather data. 
+
