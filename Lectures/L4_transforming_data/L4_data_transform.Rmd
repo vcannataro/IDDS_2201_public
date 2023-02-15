@@ -443,6 +443,19 @@ Mag-reet
 
 ---
 
+## Aside 2: 
+
+
+"Base R" has implemented their own pipe as of R version 4.1.0... give it a try! 
+
+```{r, eval=T}
+hotels |>
+  select(hotel, lead_time) |> 
+  arrange(desc(lead_time))
+```
+
+---
+
 ## How does a pipe work?
 
 - You can think about the following sequence of actions - find keys, 
